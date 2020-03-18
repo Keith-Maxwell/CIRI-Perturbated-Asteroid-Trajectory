@@ -46,3 +46,6 @@ for i in range(t, n, h):
     plt.plot(yout[0], yout[1], '.')  # at each step we plot one point on the graph
 plt.axis('equal')
 plt.show()
+
+# TODO: forward and backward test to adjust the step size
+
