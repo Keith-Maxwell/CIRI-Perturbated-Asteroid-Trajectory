@@ -36,16 +36,31 @@ k = np.sqrt(G)
 state_vector = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
 # integration parameters (in number of days)
-h = 1  # step
-n = 1000  # number of iterations
 t = 0  # start time
+tf = 1000  # stop time
+h = 10  # step
 
-yout = state_vector
-for i in range(t, n, h):
-    yout = RK4(f, t, yout)  # at each step we integrate using RK4 method
-    plt.plot(yout[0], yout[1], '.')  # at each step we plot one point on the graph
+yout_f = init_state
+results_forward = []
+for i in range(t, tf, h):
+    yout_f = RK4(f, t, yout_f)  # at each step we integrate using RK4 method
+    plt.plot(yout_f[0], yout_f[1], '.')  # at each step we plot one point on the graph
+    results_forward.append(yout_f)
 plt.axis('equal')
 plt.show()
 
-# TODO: forward and backward test to adjust the step size
+# forward and backward test to adjust the step size
 
+yout_b = yout_f
+results_backward = []
+for i in range(tf, t, -h):
+    yout_b = RK4(f, t, yout_b)
+    results_backward.append(yout_b)
+err_x = abs(results_forward[0][0] - results_backward[-1][0])
+err_y = abs(results_forward[0][1] - results_backward[-1][1])
+print(err_x, err_y)
+
+# step = 10     0.15767095259326092 0.9085819291869152
+# step = 3      0.14244108281397927 0.7785828277686659
+# step = 2      0.16122427607983747 0.8113732533872091
+# step = 1      0.16133521348074753 0.79921188284136
