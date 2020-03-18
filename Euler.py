@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math as m
 
-
+#fonction exemple
 def f(y, t):
     return -y
 
@@ -29,10 +29,10 @@ def euler(F, t0, tf, y0, n):
     return T, Y
 
 
-y0 = 1
-for n in [10, 100, 1000]:
+y0 = 1 #condition initiale
+for n in [10, 100, 1000]: #on fait varier le nombre d'itérations, donc la précision
     T, Y = euler(f, 0, 10, y0, n)
-    erreur1 = abs(Y[-1] - m.exp(-10))
+    erreur1 = abs(Y[-1] - m.exp(-10)) #comparaison avec la solution analytique
     plt.plot(T, Y)
     print(erreur1)
 
