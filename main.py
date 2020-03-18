@@ -33,7 +33,7 @@ G = 0.000295824  # gravitation constant expressed in our own system of units
 k = np.sqrt(G)
 
 # initial conditions [pos x, pos y, pos z, v x, v y, v z]
-state_vector = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
+init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
 # integration parameters (in number of days)
 t = 0  # start time
