@@ -38,6 +38,39 @@ def backward_forward(function, time_vector, initial_conditions, h):
     return y_forward, y_backward
 
 
+def extract_vectors(results):
+    r_list = []
+    r_dot_list = []
+    for i in range(len(results)):
+        r = []
+        r_dot = []
+        for j in range(0, 3):
+            r.append(results[i][j])
+            r_dot.append(results[i][j + 3])
+        r_list.append(r)
+        r_dot_list.append(r_dot)
+    return r_list, r_dot_list
+
+
+def orbital_parameters(r, rdot):  # takes two vectors
+    a = (2 / np.linalg.norm(r) - np.linalg.norm(rdot) ** 2 / mu) ** (-1)
+    e = np.linalg.norm(np.cross(rdot, np.cross(r, rdot)) / mu - r / np.linalg.norm(r))
+    k_vector = np.cross(r, rdot) / (np.linalg.norm(r) * np.linalg.norm(rdot))
+    i = np.arccos(k_vector[2])
+    return a, e, i
+
+
+def orbital_parameters_list(r, rdot):
+    a_list = []
+    e_list = []
+    i_list = []
+    for iii in range(len(r_list)):
+        a, e, i = orbital_parameters(r[iii], rdot[iii])
+        a_list.append(a)
+        e_list.append(e)
+        i_list.append(i)
+    return a_list, e_list, i_list
+
 # We use our own units : distances in AU, mass in Suns, time in Days
 
 # initial variables
@@ -46,6 +79,7 @@ m_object = 0  # mass of the object studied
 a = 2  # semi-major axis
 G = 0.000295824  # gravitation constant expressed in our own system of units
 k = np.sqrt(G)
+mu = G * m_sun
 
 # initial conditions [pos x, pos y, pos z, v x, v y, v z]
 init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
@@ -55,7 +89,7 @@ tf = 1033  # final time
 ti = 0  # starting time
 step = 1  # step wanted
 
-time = np.arange(ti, tf, step) # creation of the list containing each value of time
+time = np.arange(ti, tf, step)  # creation of the list containing each value of time
 
 forward, backward = backward_forward(f, time, init_state, step)
 
@@ -69,6 +103,10 @@ plt.show()
 err_x = 150e6 * abs(forward[0][0] - backward[-1][0])
 err_y = 150e6 * abs(forward[0][1] - backward[-1][1])
 print(err_x, err_y)
-
 # TODO: Add automatic step adjustment in function of the error
+
+r_list, rdot_list = extract_vectors(forward)
+
+a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
+
 
