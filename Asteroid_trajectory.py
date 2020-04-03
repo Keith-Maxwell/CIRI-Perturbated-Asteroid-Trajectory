@@ -4,7 +4,7 @@ import numpy as np
 
 # using the state space representation of the equation of motion
 # Only the Sun exerts it's influence on the body.
-def f(t, y):
+def f2body(t, y):
     y0 = y[3]  # velocity on x
     y1 = y[4]  # velocity on y
     y2 = y[5]  # velocity on z
@@ -16,8 +16,25 @@ def f(t, y):
 
 
 # TODO : Influence of Jupiter
+def f3body(t, y, r_jup):
+    y0 = y[3]  # velocity on x
+    y1 = y[4]  # velocity on y
+    y2 = y[5]  # velocity on z
+    r = np.sqrt(y[0] ** 2 + y[1] ** 2 + y[2] ** 2)  # norm of the vector r
+    # delta is the difference between r and r_jup (distance between the asteroid and jupiter)
+    delta = np.sqrt((y[0] - r_jup[0]) ** 2 + (y[1] - r_jup[1]) ** 2 + (y[2] - r_jup[2]) ** 2)
+    # equation of motion on x
+    y3 = -G * (m_sun + m_object) / (r ** 3) * y[0] \
+         - G * m_jup * ((y[0] - r_jup[0]) / (delta ** 3) + r_jup[0] / np.linalg.norm(r_jup) ** 3)
+    # equation of motion on y
+    y4 = -G * (m_sun + m_object) / (r ** 3) * y[1] \
+         - G * m_jup * ((y[1] - r_jup[1]) / (delta ** 3) + r_jup[1] / np.linalg.norm(r_jup) ** 3)
+    # equation of motion on z
+    y5 = -G * (m_sun + m_object) / (r ** 3) * y[2] \
+         - G * m_jup * ((y[2] - r_jup[2]) / (delta ** 3) + r_jup[2] / np.linalg.norm(r_jup) ** 3)
+    return np.array([y0, y1, y2, y3, y4, y5])
 
-
+# TODO : variable step ?
 def RK4(function, time_vector, initial_conditions, h):
     # Definition of the Runge-Kutta method at the order 4
     results = []
@@ -56,13 +73,18 @@ def extract_vectors(results):
     return r_list, r_dot_list
 
 
-def orbital_parameters(r, rdot):
+def vector2orbitalparam(r, rdot):
     # takes two vectors : pos(x,y,z) and v(x,y,z) and computes the orbital parameters at this point
     semi_major_axis = (2 / np.linalg.norm(r) - np.linalg.norm(rdot) ** 2 / mu) ** (-1)
     eccentricity = np.linalg.norm(np.cross(rdot, np.cross(r, rdot)) / mu - r / np.linalg.norm(r))
     k_vector = np.cross(r, rdot) / (np.linalg.norm(r) * np.linalg.norm(rdot))
     inclination = np.arccos(np.around(k_vector[2], 4))  # np.around rounds the value of k_vectors so it stays in [-1,1]
     return semi_major_axis, eccentricity, inclination
+
+
+# TODO : conversion of orbital elements to position and velocity vectors (for Jupiter)
+def orbitalparam2vector(a, e, i):
+    pass
 
 
 def orbital_parameters_list(r, rdot):
@@ -72,7 +94,7 @@ def orbital_parameters_list(r, rdot):
     e_list = []
     i_list = []
     for iii in range(len(r)):
-        a, e, i = orbital_parameters(r[iii], rdot[iii])
+        a, e, i = vector2orbitalparam(r[iii], rdot[iii])
         a_list.append(a)
         e_list.append(e)
         i_list.append(i)
@@ -81,15 +103,15 @@ def orbital_parameters_list(r, rdot):
 
 def orbit_var(a, e, i, t):
     # Plots the orbital parameters in order to visualise their variations over time
-    plt.figure(1)
-    plt.plot(t, a, color='red')
-    plt.title('Variations of the Semi-major Axis [a]')
-    plt.figure(2)
-    plt.plot(t, e, color='blue')
-    plt.title('Variations of the Eccentricity [e]')
-    plt.figure(3)
-    plt.plot(t, i, color='green')
-    plt.title('Variations of the Inclination [i]')
+    plt.subplot(3, 1, 1)
+    plt.plot(t, a)
+    plt.title('Semi-major axis [a]')
+    plt.subplot(3, 1, 2)
+    plt.plot(t, e)
+    plt.title('Eccentricity [e]')
+    plt.subplot(3, 1, 3)
+    plt.plot(t, i)
+    plt.title('Inclination [i]')
     plt.show()
 
 
@@ -107,6 +129,12 @@ G = 0.000295824  # gravitation constant expressed in our own system of units
 k = np.sqrt(G)
 mu = G * m_sun
 
+# TODO: definition of Jupiter orbital parameters
+m_jup = m_sun / 1047.348625
+a_jup = 5.2
+i_jup = 0
+e_jup = 0
+
 # initial conditions [pos x, pos y, pos z, v x, v y, v z]
 init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
@@ -117,12 +145,11 @@ step = 1  # step wanted
 
 time = np.arange(ti, tf + step, step)  # creation of the list containing each value of time
 
-
 # =============================================================================================
 # Start of the computation
 # =============================================================================================
 
-forward, backward = backward_forward(f, time, init_state, step)
+forward, backward = backward_forward(f2body, time, init_state, step)
 
 # plot of the trajectory
 for i in range(len(forward)):
@@ -136,7 +163,7 @@ err_x = 150e6 * abs(forward[0][0] - backward[-1][0])
 err_y = 150e6 * abs(forward[0][1] - backward[-1][1])
 print(' Error on x : ', err_x, ' km\n', 'Error on y : ', err_y, ' km')
 
-# TODO: Add automatic step adjustment in function of the error
+# TODO: Add automatic step adjustment in function of the error ?
 
 r_list, rdot_list = extract_vectors(forward)
 
