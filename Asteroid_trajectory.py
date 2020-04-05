@@ -16,23 +16,28 @@ def f2body(t, y):
 
 
 # TODO : Influence of Jupiter
-def f3body(t, y, r_jup):
+def f3body(t, y, position_Jupiter):
     y0 = y[3]  # velocity on x
     y1 = y[4]  # velocity on y
     y2 = y[5]  # velocity on z
     r = np.sqrt(y[0] ** 2 + y[1] ** 2 + y[2] ** 2)  # norm of the vector r
-    # delta is the difference between r and r_jup (distance between the asteroid and jupiter)
-    delta = np.sqrt((y[0] - r_jup[0]) ** 2 + (y[1] - r_jup[1]) ** 2 + (y[2] - r_jup[2]) ** 2)
+    # delta is the difference between r and position_Jupiter (distance between the asteroid and jupiter)
+    delta = np.sqrt(
+        (y[0] - position_Jupiter[0]) ** 2 + (y[1] - position_Jupiter[1]) ** 2 + (y[2] - position_Jupiter[2]) ** 2)
     # equation of motion on x
     y3 = -G * (m_sun + m_object) / (r ** 3) * y[0] \
-         - G * m_jup * ((y[0] - r_jup[0]) / (delta ** 3) + r_jup[0] / np.linalg.norm(r_jup) ** 3)
+         - G * m_jup * ((y[0] - position_Jupiter[0]) / (delta ** 3)
+                        + position_Jupiter[0] / np.linalg.norm(position_Jupiter) ** 3)
     # equation of motion on y
     y4 = -G * (m_sun + m_object) / (r ** 3) * y[1] \
-         - G * m_jup * ((y[1] - r_jup[1]) / (delta ** 3) + r_jup[1] / np.linalg.norm(r_jup) ** 3)
+         - G * m_jup * ((y[1] - position_Jupiter[1]) / (delta ** 3)
+                        + position_Jupiter[1] / np.linalg.norm(position_Jupiter) ** 3)
     # equation of motion on z
     y5 = -G * (m_sun + m_object) / (r ** 3) * y[2] \
-         - G * m_jup * ((y[2] - r_jup[2]) / (delta ** 3) + r_jup[2] / np.linalg.norm(r_jup) ** 3)
+         - G * m_jup * ((y[2] - position_Jupiter[2]) / (delta ** 3)
+                        + position_Jupiter[2] / np.linalg.norm(position_Jupiter) ** 3)
     return np.array([y0, y1, y2, y3, y4, y5])
+
 
 # TODO : variable step ?
 def RK4(function, time_vector, initial_conditions, h):
@@ -50,7 +55,7 @@ def RK4(function, time_vector, initial_conditions, h):
     return np.array(results)
 
 
-def backward_forward(function, time_vector, initial_conditions, h):
+def forward_backward(function, time_vector, initial_conditions, h):
     # allows for error computation. we just need to compute the difference at the starting point
     y_forward = RK4(function, time_vector, initial_conditions, h)  # call RK4 in forward movement
     new_y0 = y_forward[-1]  # new initial conditions
@@ -83,8 +88,11 @@ def vector2orbitalparam(r, rdot):
 
 
 # TODO : conversion of orbital elements to position and velocity vectors (for Jupiter)
-def orbitalparam2vector(a, e, i):
-    pass
+def orbitalparam2vector(a, t):
+    x_jup = a * np.cos(w_jup * t)
+    y_jup = a * np.sin(w_jup * t)
+    z_jup = 0
+    return np.array([x_jup, y_jup, z_jup])
 
 
 def orbital_parameters_list(r, rdot):
@@ -101,7 +109,7 @@ def orbital_parameters_list(r, rdot):
     return a_list, e_list, i_list
 
 
-def orbit_var(a, e, i, t):
+def orbit_plot_var(a, e, i, t):
     # Plots the orbital parameters in order to visualise their variations over time
     plt.subplot(3, 1, 1)
     plt.plot(t, a)
@@ -129,16 +137,19 @@ G = 0.000295824  # gravitation constant expressed in our own system of units
 k = np.sqrt(G)
 mu = G * m_sun
 
-# TODO: definition of Jupiter orbital parameters
+# definition of Jupiter orbital parameters
 m_jup = m_sun / 1047.348625
 a_jup = 5.2
 i_jup = 0
 e_jup = 0
+T_jup = np.sqrt((4 * np.pi ** 2) / (G * (m_sun + m_jup)) * a ** 3)  # orbital period of Jupiter in days
+w_jup = 2 * np.pi / T_jup  # Angular velocity of Jupiter in radians per day
 
-# initial conditions [pos x, pos y, pos z, v x, v y, v z]
+# initial conditions of the asteroid [pos x, pos y, pos z, v x, v y, v z]
 init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
-niter = 1000  # number of iterations
+# integration parameters
+niter = 1000  # number of iterations (useless for now, it is auto-determined by np.arange)
 tf = 1033  # final time
 ti = 0  # starting time
 step = 1  # step wanted
@@ -146,17 +157,10 @@ step = 1  # step wanted
 time = np.arange(ti, tf + step, step)  # creation of the list containing each value of time
 
 # =============================================================================================
-# Start of the computation
+# Start of the computation for 2 body problem
 # =============================================================================================
 
-forward, backward = backward_forward(f2body, time, init_state, step)
-
-# plot of the trajectory
-for i in range(len(forward)):
-    plt.plot(forward[i][0], forward[i][1], 'o', color='red', markersize=1)
-plt.axis('equal')
-plt.title('Trajectory around the sun')
-plt.show()
+forward, backward = forward_backward(f2body, time, init_state, step)
 
 # computation of the error between forward and backward
 err_x = 150e6 * abs(forward[0][0] - backward[-1][0])
@@ -165,8 +169,25 @@ print(' Error on x : ', err_x, ' km\n', 'Error on y : ', err_y, ' km')
 
 # TODO: Add automatic step adjustment in function of the error ?
 
+# plot of the trajectory
+for i in range(len(forward)):
+    plt.plot(forward[i][0], forward[i][1], 'o', color='red', markersize=1)
+plt.axis('equal')
+plt.title('Unperturbed trajectory around the sun')
+plt.show()
+
+# get the position and velocity from previous results
 r_list, rdot_list = extract_vectors(forward)
 
+# calculate the orbital parameters from the position and velocity
 a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 
-orbit_var(a_list, e_list, i_list, time)
+# plot the orbital parameters
+orbit_plot_var(a_list, e_list, i_list, time)
+
+
+# =============================================================================================
+# Start of the computation for 3 body problem
+# =============================================================================================
+
+
