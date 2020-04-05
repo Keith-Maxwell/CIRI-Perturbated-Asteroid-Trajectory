@@ -55,6 +55,21 @@ def RK4(function, time_vector, initial_conditions, h):
     return np.array(results)
 
 
+def RK4_3body(function, time_vector, initial_conditions, h, pos_jupiter):
+    # Definition of the Runge-Kutta method at the order 4
+    results = []
+    yin = initial_conditions
+    results.append(yin)  # set the first value to the initial conditions
+    for i in range(1,len(time_vector[1:])):
+        k1 = function(time_vector[i], yin, pos_jupiter[i])
+        k2 = function(time_vector[i] + h / 2, yin + h / 2 * k1, pos_jupiter[i])
+        k3 = function(time_vector[i] + h / 2, yin + h / 2 * k2, pos_jupiter[i])
+        k4 = function(time_vector[i] + h, yin + h * k3, pos_jupiter[i])
+        yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+        results.append(yin)  # each value calculated for given t is added to the list
+    return np.array(results)
+
+
 def forward_backward(function, time_vector, initial_conditions, h):
     # allows for error computation. we just need to compute the difference at the starting point
     y_forward = RK4(function, time_vector, initial_conditions, h)  # call RK4 in forward movement
@@ -87,12 +102,12 @@ def vector2orbitalparam(r, rdot):
     return semi_major_axis, eccentricity, inclination
 
 
-# TODO : conversion of orbital elements to position and velocity vectors (for Jupiter)
-def orbitalparam2vector(a, t):
-    x_jup = a * np.cos(w_jup * t)
-    y_jup = a * np.sin(w_jup * t)
+# conversion of orbital elements to position and velocity vectors (for Jupiter)
+def orbitalparam2vector(semi_major_axis, t):
+    x_jup = semi_major_axis * np.cos(w_jup * t)
+    y_jup = semi_major_axis * np.sin(w_jup * t)
     z_jup = 0
-    return np.array([x_jup, y_jup, z_jup])
+    return [x_jup, y_jup, z_jup]
 
 
 def orbital_parameters_list(r, rdot):
@@ -142,7 +157,7 @@ m_jup = m_sun / 1047.348625
 a_jup = 5.2
 i_jup = 0
 e_jup = 0
-T_jup = np.sqrt((4 * np.pi ** 2) / (G * (m_sun + m_jup)) * a ** 3)  # orbital period of Jupiter in days
+T_jup = np.sqrt((4 * np.pi ** 2) / (G * (m_sun + m_jup)) * a_jup ** 3)  # orbital period of Jupiter in days
 w_jup = 2 * np.pi / T_jup  # Angular velocity of Jupiter in radians per day
 
 # initial conditions of the asteroid [pos x, pos y, pos z, v x, v y, v z]
@@ -150,7 +165,7 @@ init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
 # integration parameters
 niter = 1000  # number of iterations (useless for now, it is auto-determined by np.arange)
-tf = 1033  # final time
+tf = 10000  # final time
 ti = 0  # starting time
 step = 1  # step wanted
 
@@ -159,7 +174,7 @@ time = np.arange(ti, tf + step, step)  # creation of the list containing each va
 # =============================================================================================
 # Start of the computation for 2 body problem
 # =============================================================================================
-
+'''
 forward, backward = forward_backward(f2body, time, init_state, step)
 
 # computation of the error between forward and backward
@@ -184,10 +199,39 @@ a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 
 # plot the orbital parameters
 orbit_plot_var(a_list, e_list, i_list, time)
-
+'''
 
 # =============================================================================================
 # Start of the computation for 3 body problem
 # =============================================================================================
+# Position vector of jupiter
+list_pos_jup = []
+for t in time:
+    list_pos_jup.append(orbitalparam2vector(a_jup, t))
 
+results = RK4_3body(f3body, time, init_state, step, list_pos_jup)
 
+'''
+# computation of the error between forward and backward
+err_x2 = 150e6 * abs(forward2[0][0] - backward2[-1][0])
+err_y2 = 150e6 * abs(forward2[0][1] - backward2[-1][1])
+print(' Error on x : ', err_x2, ' km\n', 'Error on y : ', err_y2, ' km')
+'''
+
+# plot of the trajectory
+for i in range(len(results)):
+    plt.plot(results[i][0], results[i][1], 'o', color='red', markersize=1)
+    plt.plot(list_pos_jup[i][0], list_pos_jup[i][1], 'o', color='green', markersize=1)
+plt.axis('equal')
+plt.title('perturbed trajectory around the sun')
+plt.show()
+print('done')
+
+# get the position and velocity from previous results
+r_list, rdot_list = extract_vectors(results)
+
+# calculate the orbital parameters from the position and velocity
+a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
+
+# plot the orbital parameters
+orbit_plot_var(a_list, e_list, i_list, time[1:])
