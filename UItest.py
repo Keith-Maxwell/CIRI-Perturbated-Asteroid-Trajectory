@@ -230,7 +230,7 @@ class Ui_MainWindow(object):
         self.circularCheckBox.stateChanged.connect(self.hide_show_InitialCond)
 
         # ------------------------------------------------------------------------
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
+        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)  # TODO : improve the progress estimation
         self.progressBar.setGeometry(QtCore.QRect(250, 300, 631, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
@@ -301,37 +301,47 @@ class Ui_MainWindow(object):
         self.circularCheckBox.setText(_translate("MainWindow", "Circular orbit"))
         self.StartButton.setText(_translate("MainWindow", "Start !"))
 
-    def Start(self):  # TODO : clean all this shit with functions
+    def Start(self):
         if self.jupiterCheckBox.checkState():  # TODO : implement other planets
+            self.progressBar.setValue(0)
+
             jupiter = planet(m_sun / 1047.348625, 5.2, 0, 0)
             jupiter.orbital_period()
 
-            if self.circularCheckBox.checkState():
-                self.init_state = np.array(
-                    [float(self.inputAsteroidSmAxis.text()), 0, 0,
-                     0, k / np.sqrt(float(self.inputAsteroidSmAxis.text())), 0])
-            else:  # TODO : Verify the type of the input and make it foolproof
-                self.init_state = np.array(
-                    [float(self.inputPosX.text()), float(self.inputPosY.text()), float(self.inputPosZ.text()),
-                     float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
+            self.progressBar.setValue(5)
+
+            self.get_init_state()
 
             self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
                                   int(self.inputStep.text()))  # creation of the list containing each value of time
 
+            self.progressBar.setValue(10)
+
             self.results = threeBody.RK4(self.time, self.init_state, int(self.inputStep.text()), jupiter)
 
-            self.PlotTrajectory(jupiter)
+            self.progressBar.setValue(50)
+
+            self.PlotTrajectory(jupiter)  # plot of the results + jupiter
 
             self.r_list, self.rdot_list = extract_vectors(self.results)
             self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
             self.PlotOrbitVar(self.a_list, self.e_list, self.i_list, self.time[1:])
 
-            self.progressBar.setValue(100)
+            self.progressBar.setValue(85)
 
             self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/trajectory.png"))
             self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/orbitVar.png"))
-        else:  # TODO : No Jupiter
-            pass
+
+            self.progressBar.setValue(100)
+
+        else:  # No Jupiter
+            self.get_init_state()
+            self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
+                                  int(self.inputStep.text()))  # creation of the list containing each value of time
+            self.results = twoBody.RK4(self.time, self.init_state, int(self.inputStep.text()))
+            self.PlotTrajectory()
+            self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/trajectory.png"))
+            self.progressBar.setValue(100)
 
     def hide_show_InitialCond(self):
         if self.circularCheckBox.checkState():
@@ -339,15 +349,26 @@ class Ui_MainWindow(object):
         else:
             self.groupInitialConditions.show()
 
-    def PlotTrajectory(self, planet):
+    def get_init_state(self):
+        if self.circularCheckBox.checkState():  # Circular initial orbit
+            self.init_state = np.array(
+                [float(self.inputAsteroidSmAxis.text()), 0, 0,
+                 0, k / np.sqrt(float(self.inputAsteroidSmAxis.text())), 0])
+        else:  # User defined initial parameters # TODO : Verify the type of the input and make it foolproof
+            self.init_state = np.array(
+                [float(self.inputPosX.text()), float(self.inputPosY.text()), float(self.inputPosZ.text()),
+                 float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
+
+    def PlotTrajectory(self, planet=None):
         self.figure1.clear()
         ax = self.figure1.add_subplot(111)
         ax.plot(self.results[:, 0],
                 self.results[:, 1],
-                'o', color='red', markersize=1)  # plot of the asteroid
-        ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
-                planet.orbitalparam2vectorList(self.time)[:, 1],
-                'o', color='green', markersize=1)  # plot of Jupiter
+                'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
+        if planet:
+            ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
+                    planet.orbitalparam2vectorList(self.time)[:, 1],
+                    'o', color='green', markersize=1, label='planet')  # plot of the planet
         self.trajectory_canvas.draw()
         self.trajectory_canvas.print_png('Plots/trajectory.png')
 
@@ -355,10 +376,14 @@ class Ui_MainWindow(object):
         self.figure2.clear()
         ax1 = self.figure2.add_subplot(311)
         ax1.plot(time, val1)
+        ax1.set_title('Variations of the Semi-major axis [a]')
         ax2 = self.figure2.add_subplot(312)
         ax2.plot(time, val2)
+        ax1.set_title('Variations of the Eccentricity [e]')
         ax3 = self.figure2.add_subplot(313)
         ax3.plot(time, val3)
+        ax1.set_title('Variations of the Inclination [i]')
+
         self.orbitVar_canvas.draw()
         self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 

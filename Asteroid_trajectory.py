@@ -236,8 +236,8 @@ plt.plot(jupiter.orbitalparam2vectorList(time)[:, 0], jupiter.orbitalparam2vecto
          color='green', markersize=1, label='Jupiter')  # plot of Jupiter
 plt.axis('equal')
 plt.title('perturbed trajectory around the sun')
+plt.legend()
 plt.show()
-print('done')
 
 # get the position and velocity from previous results
 r_list, rdot_list = extract_vectors(results)
