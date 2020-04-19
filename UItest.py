@@ -9,8 +9,9 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
 
@@ -77,8 +78,10 @@ class Ui_MainWindow(object):
         self.plotOrbitVar.setScaledContents(True)
         self.plotOrbitVar.setObjectName("plotOrbitVar")
 
-        self.trajectory_canvas = FigureCanvasQTAgg(Figure(figsize=(5, 5)))
-        self.orbitVar_canvas = FigureCanvasQTAgg(Figure(figsize=(5, 5)))
+        self.figure1 = Figure()
+        self.trajectory_canvas = FigureCanvas(self.figure1)
+        self.figure2 = Figure()
+        self.orbitVar_canvas = FigureCanvas(self.figure2)
 
         # ------------------------------------------------------------------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
@@ -93,7 +96,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.mercuryCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.mercuryCheckBox.setEnabled(False) # TODO : implement Mercury
+        self.mercuryCheckBox.setEnabled(False)  # TODO : implement Mercury
         self.mercuryCheckBox.setTristate(False)
         self.mercuryCheckBox.setObjectName("mercuryCheckBox")
         self.gridLayout.addWidget(self.mercuryCheckBox, 0, 0, 1, 1)
@@ -313,27 +316,15 @@ class Ui_MainWindow(object):
                      float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
 
             self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
-                             int(self.inputStep.text()))  # creation of the list containing each value of time
+                                  int(self.inputStep.text()))  # creation of the list containing each value of time
 
             self.results = threeBody.RK4(self.time, self.init_state, int(self.inputStep.text()), jupiter)
 
-            self.progress = 0
-            self.trajectory_ax = self.trajectory_canvas.figure.subplots()
-            for i in range(len(self.results)):
-                self.progressBar.setValue(self.progress)
-                self.progress += 100 / len(self.results)
-                self.trajectory_ax.plot(self.results[i][0], self.results[i][1], 'o', color='red',
-                                        markersize=1)  # plot of the asteroid
-                self.trajectory_ax.plot(jupiter.orbitalparam2vectorList(self.time)[i][0],
-                                        jupiter.orbitalparam2vectorList(self.time)[i][1], 'o',
-                                        color='green', markersize=1)  # plot of Jupiter
-            self.trajectory_canvas.print_png('Plots/trajectory.png')
+            self.PlotTrajectory(jupiter)
 
             self.r_list, self.rdot_list = extract_vectors(self.results)
-            # calculate the orbital parameters from the position and velocity
             self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
-            # plot the orbital parameters
-            self.plotOrbitalVariation(self.a_list, self.e_list, self.i_list, self.time[1:])
+            self.PlotOrbitVar(self.a_list, self.e_list, self.i_list, self.time[1:])
 
             self.progressBar.setValue(100)
 
@@ -348,18 +339,27 @@ class Ui_MainWindow(object):
         else:
             self.groupInitialConditions.show()
 
-    def plotOrbitalVariation(self, a, e, i, t):
-        # Plots the orbital parameters in order to visualise their variations over time
-        self.orbitVar_ax1 = self.orbitVar_canvas.figure.subplots()
-        self.orbitVar_ax1.plot(t, a)
-        '''#self.orbitVar_ax1.title('Variations of Semi-major axis [a]')
-        self.orbitVar_ax2 = self.orbitVar_canvas.figure.subplots(312)
-        self.orbitVar_ax2.plot(t, e)
-        #self.orbitVar_ax2.title('Variations of Eccentricity [e]')
-        self.orbitVar_ax3 = self.orbitVar_canvas.figure.subplots(313)
-        self.orbitVar_ax2.plot(t, e)
-        #self.orbitVar_ax2.title('Variations of Inclination [i]')'''
+    def PlotTrajectory(self, planet):
+        self.figure1.clear()
+        ax = self.figure1.add_subplot(111)
+        ax.plot(self.results[:, 0],
+                self.results[:, 1],
+                'o', color='red', markersize=1)  # plot of the asteroid
+        ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
+                planet.orbitalparam2vectorList(self.time)[:, 1],
+                'o', color='green', markersize=1)  # plot of Jupiter
+        self.trajectory_canvas.draw()
+        self.trajectory_canvas.print_png('Plots/trajectory.png')
 
+    def PlotOrbitVar(self, val1, val2, val3, time):
+        self.figure2.clear()
+        ax1 = self.figure2.add_subplot(311)
+        ax1.plot(time, val1)
+        ax2 = self.figure2.add_subplot(312)
+        ax2.plot(time, val2)
+        ax3 = self.figure2.add_subplot(313)
+        ax3.plot(time, val3)
+        self.orbitVar_canvas.draw()
         self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 
 
@@ -382,7 +382,7 @@ class planet(object):
 
     def orbitalparam2vectorList(self, timevector):
         self.posList = [self.orbitalparam2vector(t) for t in timevector]
-        return self.posList
+        return np.array(self.posList)
 
 
 class twoBody():  # Only the Sun exerts it's influence on the body.
@@ -503,9 +503,6 @@ def orbital_parameters_list(r, rdot):
         e_list.append(e)
         i_list.append(i)
     return a_list, e_list, i_list
-
-
-
 
 
 if __name__ == "__main__":
