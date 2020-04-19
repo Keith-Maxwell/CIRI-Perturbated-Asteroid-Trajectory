@@ -10,6 +10,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -45,34 +48,37 @@ class Ui_MainWindow(object):
 
         # ------------------------------------------------------------------------
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupPlots.setGeometry(QtCore.QRect(10, 320, 1091, 471))
+        self.groupPlots.setGeometry(QtCore.QRect(40, 320, 1031, 501))
         self.groupPlots.setAlignment(QtCore.Qt.AlignCenter)
         self.groupPlots.setObjectName("groupPlots")
 
         self.label_3 = QtWidgets.QLabel(self.groupPlots)
-        self.label_3.setGeometry(QtCore.QRect(20, 20, 501, 21))
+        self.label_3.setGeometry(QtCore.QRect(10, 10, 501, 21))
         self.label_3.setObjectName("label_3")
 
         self.label = QtWidgets.QLabel(self.groupPlots)
-        self.label.setGeometry(QtCore.QRect(570, 20, 501, 21))
-        self.label.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.label.setGeometry(QtCore.QRect(580, 10, 501, 21))
         self.label.setObjectName("label")
 
         self.plotTrajectory = QtWidgets.QLabel(self.groupPlots)
-        self.plotTrajectory.setGeometry(QtCore.QRect(20, 60, 511, 391))
+        self.plotTrajectory.setEnabled(True)
+        self.plotTrajectory.setGeometry(QtCore.QRect(20, 40, 441, 441))
         self.plotTrajectory.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.plotTrajectory.setText("")
-        #self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
+        self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
         self.plotTrajectory.setScaledContents(True)
         self.plotTrajectory.setObjectName("plotTrajectory")
 
         self.plotOrbitVar = QtWidgets.QLabel(self.groupPlots)
-        self.plotOrbitVar.setGeometry(QtCore.QRect(560, 60, 511, 391))
+        self.plotOrbitVar.setGeometry(QtCore.QRect(580, 40, 441, 441))
         self.plotOrbitVar.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.plotOrbitVar.setText("")
-        #self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
+        self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
         self.plotOrbitVar.setScaledContents(True)
         self.plotOrbitVar.setObjectName("plotOrbitVar")
+
+        self.trajectory_canvas = FigureCanvasQTAgg(Figure(figsize=(5, 5)))
+        self.orbitVar_canvas = FigureCanvasQTAgg(Figure(figsize=(5, 5)))
 
         # ------------------------------------------------------------------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
@@ -87,36 +93,42 @@ class Ui_MainWindow(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.mercuryCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.mercuryCheckBox.setEnabled(True)
-        self.mercuryCheckBox.setCheckable(True)
-        self.mercuryCheckBox.setChecked(False)
+        self.mercuryCheckBox.setEnabled(False) # TODO : implement Mercury
         self.mercuryCheckBox.setTristate(False)
         self.mercuryCheckBox.setObjectName("mercuryCheckBox")
         self.gridLayout.addWidget(self.mercuryCheckBox, 0, 0, 1, 1)
         self.jupiterCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.jupiterCheckBox.setEnabled(True)
+        self.jupiterCheckBox.setTristate(False)
         self.jupiterCheckBox.setObjectName("jupiterCheckBox")
         self.gridLayout.addWidget(self.jupiterCheckBox, 0, 1, 1, 1)
         self.venusCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.venusCheckBox.setEnabled(False)  # TODO : implement Venus
         self.venusCheckBox.setTristate(False)
         self.venusCheckBox.setObjectName("venusCheckBox")
         self.gridLayout.addWidget(self.venusCheckBox, 1, 0, 1, 1)
         self.saturnCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.saturnCheckBox.setEnabled(False)  # TODO : implement Saturn
         self.saturnCheckBox.setTristate(False)
         self.saturnCheckBox.setObjectName("saturnCheckBox")
         self.gridLayout.addWidget(self.saturnCheckBox, 1, 1, 1, 1)
         self.earthCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.earthCheckBox.setEnabled(False)  # TODO : implement Earth
         self.earthCheckBox.setTristate(False)
         self.earthCheckBox.setObjectName("earthCheckBox")
         self.gridLayout.addWidget(self.earthCheckBox, 2, 0, 1, 1)
         self.uranusCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.uranusCheckBox.setEnabled(False)  # TODO : implement Urnanus
         self.uranusCheckBox.setTristate(False)
         self.uranusCheckBox.setObjectName("uranusCheckBox")
         self.gridLayout.addWidget(self.uranusCheckBox, 2, 1, 1, 1)
         self.marsCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.marsCheckBox.setEnabled(False)  # TODO : implement Mars
         self.marsCheckBox.setTristate(False)
         self.marsCheckBox.setObjectName("marsCheckBox")
         self.gridLayout.addWidget(self.marsCheckBox, 3, 0, 1, 1)
         self.neptuneCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.neptuneCheckBox.setEnabled(False)  # TODO : implement Neptune
         self.neptuneCheckBox.setTristate(False)
         self.neptuneCheckBox.setObjectName("neptuneCheckBox")
         self.gridLayout.addWidget(self.neptuneCheckBox, 3, 1, 1, 1)
@@ -286,39 +298,48 @@ class Ui_MainWindow(object):
         self.circularCheckBox.setText(_translate("MainWindow", "Circular orbit"))
         self.StartButton.setText(_translate("MainWindow", "Start !"))
 
-
-    def Start(self): #TODO : clean all this shit with functions
-        if self.jupiterCheckBox.checkState(): #TODO : implement other planets
+    def Start(self):  # TODO : clean all this shit with functions
+        if self.jupiterCheckBox.checkState():  # TODO : implement other planets
             jupiter = planet(m_sun / 1047.348625, 5.2, 0, 0)
             jupiter.orbital_period()
 
             if self.circularCheckBox.checkState():
-                init_state = np.array(
+                self.init_state = np.array(
                     [float(self.inputAsteroidSmAxis.text()), 0, 0,
                      0, k / np.sqrt(float(self.inputAsteroidSmAxis.text())), 0])
-            else : # TODO : Verify the type of the input and make it foolproof
-                init_state = np.array(
+            else:  # TODO : Verify the type of the input and make it foolproof
+                self.init_state = np.array(
                     [float(self.inputPosX.text()), float(self.inputPosY.text()), float(self.inputPosZ.text()),
                      float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
 
-            time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
+            self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
                              int(self.inputStep.text()))  # creation of the list containing each value of time
 
-            results = threeBody.RK4(time, init_state, int(self.inputStep.text()), jupiter)
+            self.results = threeBody.RK4(self.time, self.init_state, int(self.inputStep.text()), jupiter)
 
             self.progress = 0
-            for i in range(len(results)):
+            self.trajectory_ax = self.trajectory_canvas.figure.subplots()
+            for i in range(len(self.results)):
                 self.progressBar.setValue(self.progress)
-                self.progress += 100/len(results)
-                plt.plot(results[i][0], results[i][1], 'o', color='red', markersize=1)  # plot of the asteroid
-                plt.plot(jupiter.orbitalparam2vectorList(time)[i][0], jupiter.orbitalparam2vectorList(time)[i][1], 'o',
-                         color='green', markersize=1)  # plot of Jupiter
-            plt.axis('equal')
-            plt.title('perturbed trajectory around the sun')
-            #TODO : Make the plots work and display it in the GUI
+                self.progress += 100 / len(self.results)
+                self.trajectory_ax.plot(self.results[i][0], self.results[i][1], 'o', color='red',
+                                        markersize=1)  # plot of the asteroid
+                self.trajectory_ax.plot(jupiter.orbitalparam2vectorList(self.time)[i][0],
+                                        jupiter.orbitalparam2vectorList(self.time)[i][1], 'o',
+                                        color='green', markersize=1)  # plot of Jupiter
+            self.trajectory_canvas.print_png('Plots/trajectory.png')
+
+            self.r_list, self.rdot_list = extract_vectors(self.results)
+            # calculate the orbital parameters from the position and velocity
+            self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
+            # plot the orbital parameters
+            self.plotOrbitalVariation(self.a_list, self.e_list, self.i_list, self.time[1:])
+
             self.progressBar.setValue(100)
+
             self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/trajectory.png"))
-        else: #TODO : No Jupiter
+            self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/orbitVar.png"))
+        else:  # TODO : No Jupiter
             pass
 
     def hide_show_InitialCond(self):
@@ -326,6 +347,20 @@ class Ui_MainWindow(object):
             self.groupInitialConditions.hide()
         else:
             self.groupInitialConditions.show()
+
+    def plotOrbitalVariation(self, a, e, i, t):
+        # Plots the orbital parameters in order to visualise their variations over time
+        self.orbitVar_ax1 = self.orbitVar_canvas.figure.subplots()
+        self.orbitVar_ax1.plot(t, a)
+        '''#self.orbitVar_ax1.title('Variations of Semi-major axis [a]')
+        self.orbitVar_ax2 = self.orbitVar_canvas.figure.subplots(312)
+        self.orbitVar_ax2.plot(t, e)
+        #self.orbitVar_ax2.title('Variations of Eccentricity [e]')
+        self.orbitVar_ax3 = self.orbitVar_canvas.figure.subplots(313)
+        self.orbitVar_ax2.plot(t, e)
+        #self.orbitVar_ax2.title('Variations of Inclination [i]')'''
+
+        self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 
 
 class planet(object):
@@ -379,7 +414,7 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
         return np.array(results)
 
     @classmethod
-    def forward_backward(cls,  time_vector, initial_conditions, h):
+    def forward_backward(cls, time_vector, initial_conditions, h):
         # allows for error computation. we just need to compute the difference at the starting point
         y_forward = cls.RK4(time_vector, initial_conditions, h)  # call RK4 in forward movement
         new_y0 = y_forward[-1]  # new initial conditions
@@ -428,14 +463,59 @@ class threeBody():
         return np.array(results)
 
 
-if __name__ == "__main__":
+def extract_vectors(results):
+    # takes the list of outputs from RK4 and extracts a list of position and velocity vectors
+    r_list = []
+    r_dot_list = []
+    for i in range(len(results)):
+        r = []
+        r_dot = []
+        for j in range(0, 3):
+            r.append(results[i][j])
+            r_dot.append(results[i][j + 3])
+        r_list.append(r)
+        r_dot_list.append(r_dot)
+    return r_list, r_dot_list
 
+
+def vector2orbitalparam(r, rdot):
+    # takes two vectors : pos(x,y,z) and v(x,y,z) and computes the orbital parameters at this point
+    semi_major_axis = (2 / np.linalg.norm(r) - np.linalg.norm(rdot) ** 2 / mu) ** (-1)
+
+    eccentricity = np.linalg.norm(np.cross(rdot, np.cross(r, rdot)) / mu - r / np.linalg.norm(r))
+
+    k_vector = np.cross(r, rdot) / (np.linalg.norm(r) * np.linalg.norm(rdot))
+
+    inclination = np.arccos(np.around(k_vector[2], 4))  # np.around rounds the value of k_vectors so it stays in [-1,1]
+
+    return semi_major_axis, eccentricity, inclination
+
+
+def orbital_parameters_list(r, rdot):
+    # takes the list of position vectors and velocity vectors and computes the corresponding
+    # orbital parameters at each point. Returns individual lists of those parameters
+    a_list = []
+    e_list = []
+    i_list = []
+    for iii in range(len(r)):
+        a, e, i = vector2orbitalparam(r[iii], rdot[iii])
+        a_list.append(a)
+        e_list.append(e)
+        i_list.append(i)
+    return a_list, e_list, i_list
+
+
+
+
+
+if __name__ == "__main__":
     m_sun = 1  # mass of the Sun
     G = 0.000295824  # gravitation constant expressed in our own system of units
     k = np.sqrt(G)
     mu = G * m_sun
 
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
