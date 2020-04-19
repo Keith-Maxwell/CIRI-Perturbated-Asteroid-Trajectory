@@ -21,7 +21,7 @@ class planet(object):
 
     def orbitalparam2vectorList(self, timevector):
         self.posList = [self.orbitalparam2vector(t) for t in timevector]
-        return self.posList
+        return np.array(self.posList)
 
 
 class twoBody():  # Only the Sun exerts it's influence on the body.
@@ -53,7 +53,7 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
         return np.array(results)
 
     @classmethod
-    def forward_backward(cls,  time_vector, initial_conditions, h):
+    def forward_backward(cls, time_vector, initial_conditions, h):
         # allows for error computation. we just need to compute the difference at the starting point
         y_forward = cls.RK4(time_vector, initial_conditions, h)  # call RK4 in forward movement
         new_y0 = y_forward[-1]  # new initial conditions
@@ -100,6 +100,9 @@ class threeBody():
             yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
             results.append(yin)  # each value calculated for given t is added to the list
         return np.array(results)
+
+    # TODO : Forward and backward for 3body problem
+
 
 
 def extract_vectors(results):
@@ -216,7 +219,6 @@ a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 # plot the orbital parameters
 plotOrbitalVariation(a_list, e_list, i_list, time)
 
-
 # =============================================================================================
 # Start of the computation for 3 body problem
 # =============================================================================================
@@ -231,15 +233,14 @@ print(' Error on x : ', err_x2, ' km\n', 'Error on y : ', err_y2, ' km')
 '''
 
 # plot of the trajectory
-for i in range(len(results)):
-    plt.plot(results[i][0], results[i][1], 'o', color='red', markersize=1, label='Asteroid') # plot of the asteroid
-    plt.plot(jupiter.orbitalparam2vectorList(time)[i][0], jupiter.orbitalparam2vectorList(time)[i][1], 'o',
-             color='green', markersize=1, label='Jupiter') # plot of Jupiter
+
+plt.plot(results[:, 0], results[:, 1], 'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
+plt.plot(jupiter.orbitalparam2vectorList(time)[:, 0], jupiter.orbitalparam2vectorList(time)[:, 1], 'o',
+         color='green', markersize=1, label='Jupiter')  # plot of Jupiter
 plt.axis('equal')
 plt.title('perturbed trajectory around the sun')
 plt.legend()
 plt.show()
-print('done')
 
 # get the position and velocity from previous results
 r_list, rdot_list = extract_vectors(results)
