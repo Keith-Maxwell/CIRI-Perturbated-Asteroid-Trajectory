@@ -360,29 +360,41 @@ class Ui_MainWindow(object):
 
     def PlotTrajectory(self, planet=None):
         self.figure1.clear()
-        ax = self.figure1.add_subplot(111)
-        ax.plot(self.results[:, 0],
+        self.ax = self.figure1.add_subplot(111)
+        self.ax.plot(self.results[:, 0],
                 self.results[:, 1],
                 'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
         if planet:
-            ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
+            self.ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
                     planet.orbitalparam2vectorList(self.time)[:, 1],
                     'o', color='green', markersize=1, label='planet')  # plot of the planet
+        self.ax.set_facecolor(plot_background_color)
+        self.ax.tick_params(colors='white')
+        self.figure1.patch.set_facecolor((39/255, 42/255, 49/255))
         self.trajectory_canvas.draw()
         self.trajectory_canvas.print_png('Plots/trajectory.png')
 
     def PlotOrbitVar(self, val1, val2, val3, time):
         self.figure2.clear()
-        ax1 = self.figure2.add_subplot(311)
-        ax1.plot(time, val1)
-        ax1.set_title('Variations of the Semi-major axis [a]')
-        ax2 = self.figure2.add_subplot(312)
-        ax2.plot(time, val2)
-        ax1.set_title('Variations of the Eccentricity [e]')
-        ax3 = self.figure2.add_subplot(313)
-        ax3.plot(time, val3)
-        ax1.set_title('Variations of the Inclination [i]')
+        self.ax1 = self.figure2.add_subplot(311)
+        self.ax1.plot(time, val1)
+        self.ax1.set_facecolor(plot_background_color)
+        self.ax1.tick_params(colors='white')
+        self.ax1.legend('a') # Variations of the Semi-major axis [a]
+        self.ax2 = self.figure2.add_subplot(312)
+        self.ax2.plot(time, val2)
+        self.ax2.set_facecolor(plot_background_color)
+        self.ax2.tick_params(colors='white')
+        # self.ax2.set_title('Variations of the Eccentricity [e]')
+        self.ax2.legend('e')
+        self.ax3 = self.figure2.add_subplot(313)
+        self.ax3.plot(time, val3)
+        self.ax3.set_facecolor(plot_background_color)
+        self.ax3.tick_params(colors='white')
+        # self.ax3.set_title('Variations of the Inclination [i]')
+        self.ax3.legend('i')
 
+        self.figure2.patch.set_facecolor((39/255, 42/255, 49/255))
         self.orbitVar_canvas.draw()
         self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 
@@ -556,6 +568,7 @@ if __name__ == "__main__":
     dark_palette.setColor(QPalette.HighlightedText, QtGui.QColor(0, 0, 0))
     app.setPalette(dark_palette)
     app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
+    plot_background_color = (0.12, 0.13, 0.15)
 
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
