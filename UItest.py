@@ -8,10 +8,9 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPalette
 import numpy as np
-from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
 
@@ -539,6 +538,25 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
+
+    app.setStyle("Fusion")
+    dark_palette = QPalette()
+    dark_palette.setColor(QPalette.Window, QtGui.QColor(51, 54, 63))
+    dark_palette.setColor(QPalette.WindowText, QtGui.QColor(250, 250, 250))
+    dark_palette.setColor(QPalette.Base, QtGui.QColor(39, 42, 49))
+    dark_palette.setColor(QPalette.AlternateBase, QtGui.QColor(51, 54, 63))
+    dark_palette.setColor(QPalette.ToolTipBase, QtGui.QColor(250, 250, 250))
+    dark_palette.setColor(QPalette.ToolTipText, QtGui.QColor(250, 250, 250))
+    dark_palette.setColor(QPalette.Text, QtGui.QColor(250, 250, 250))
+    dark_palette.setColor(QPalette.Button, QtGui.QColor(51, 54, 63))
+    dark_palette.setColor(QPalette.ButtonText, QtGui.QColor(250, 250, 250))
+    dark_palette.setColor(QPalette.BrightText, QtGui.QColor(255, 0, 0))
+    dark_palette.setColor(QPalette.Link, QtGui.QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.Highlight, QtGui.QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.HighlightedText, QtGui.QColor(0, 0, 0))
+    app.setPalette(dark_palette)
+    app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
+
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
