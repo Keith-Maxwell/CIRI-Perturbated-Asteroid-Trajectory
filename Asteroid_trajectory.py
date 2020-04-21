@@ -7,11 +7,11 @@ class planet(object):
     def __init__(self, m, a, i, e, Omega, omega, M0, t0=0):
         self.m = m
         self.a = a
-        self.i = i
+        self.i = np.radians(i)
         self.e = e
-        self.Omega = Omega
-        self.omega = omega
-        self.M0 = M0
+        self.Omega = np.radians(Omega)
+        self.omega = np.radians(omega)
+        self.M0 = np.radians(M0)
         self.t0 = t0
 
     def orbital_period(self):
@@ -45,7 +45,7 @@ class planet(object):
                                              self.rotation1(-self.i)),
                                       self.rotation3(-self.omega)),
                                np.array([[self.bigXdot], [self.bigYdot], [0]]))
-        return [self.position[0], self.position[1], self.position[2]]
+        return [self.position[0,0], self.position[1,0], self.position[2,0]]
 
     def rotation1(self, theta):
         return np.array([[1, 0, 0], [0, np.cos(theta), np.sin(theta)], [0, -np.sin(theta), np.cos(theta)]])
@@ -227,7 +227,7 @@ jupiter = planet(m_sun / 1047.348625, 5.202603, 1.303, 0.048498, 100.46, -86.13,
 jupiter.orbital_period()
 
 # initial conditions of the asteroid [pos x, pos y, pos z, v x, v y, v z]
-init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
+init_state = np.array([a, 0.0, 0.0, 0.0, k / np.sqrt(a), 0.0])
 
 # integration parameters
 tf = 40000  # final time
