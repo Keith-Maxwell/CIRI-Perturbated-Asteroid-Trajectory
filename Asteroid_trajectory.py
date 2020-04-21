@@ -13,8 +13,6 @@ class planet(object):
         self.omega = np.radians(omega)
         self.M0 = np.radians(M0)
         self.t0 = t0
-
-    def orbital_period(self):
         self.T = np.sqrt((4 * np.pi ** 2) / (G * (m_sun + self.m)) * self.a ** 3)
         self.w = 2 * np.pi / self.T
 
@@ -25,7 +23,7 @@ class planet(object):
         return [self.x, self.y, self.z]
 
     def orbitalparam2vectorList(self, timevector):
-        self.posList = [self.orbitalparam2vector(t) for t in timevector]
+        self.posList = [self.completeOrbitalElem2Vector(t) for t in timevector]
         return np.array(self.posList)
 
     def completeOrbitalElem2Vector(self, t):
@@ -45,7 +43,7 @@ class planet(object):
                                              self.rotation1(-self.i)),
                                       self.rotation3(-self.omega)),
                                np.array([[self.bigXdot], [self.bigYdot], [0]]))
-        return [self.position[0,0], self.position[1,0], self.position[2,0]]
+        return [self.position[0, 0], self.position[1, 0], self.position[2, 0]]
 
     def rotation1(self, theta):
         return np.array([[1, 0, 0], [0, np.cos(theta), np.sin(theta)], [0, -np.sin(theta), np.cos(theta)]])
@@ -55,7 +53,7 @@ class planet(object):
 
     def newton(self, f, E0, h=1e-4):
         E = E0
-        for _ in range(10):
+        for _ in range(5):
             diff = (f(E + h) - f(E)) / h
             E -= f(E) / diff
         return E
@@ -107,25 +105,18 @@ class threeBody():
         y1 = y[4]  # velocity on y
         y2 = y[5]  # velocity on z
         r = np.sqrt(y[0] ** 2 + y[1] ** 2 + y[2] ** 2)  # norm of the vector r
+        pos = planet.completeOrbitalElem2Vector(t)
         # delta is the difference between r and position_Jupiter (distance between the asteroid and jupiter)
-        delta = np.sqrt((y[0] - planet.completeOrbitalElem2Vector(t)[0]) ** 2
-                        + (y[1] - planet.completeOrbitalElem2Vector(t)[1]) ** 2
-                        + (y[2] - planet.completeOrbitalElem2Vector(t)[2]) ** 2)
+        delta = np.sqrt((y[0] - pos[0]) ** 2 + (y[1] - pos[1]) ** 2 + (y[2] - pos[2]) ** 2)
         # equation of motion on x
         y3 = -G * (m_sun + m_object) / (r ** 3) * y[0] \
-             - G * planet.m * ((y[0] - planet.completeOrbitalElem2Vector(t)[0]) / (delta ** 3)
-                               + planet.completeOrbitalElem2Vector(t)[0] / np.linalg.norm(
-                    planet.completeOrbitalElem2Vector(t)) ** 3)
+             - G * planet.m * ((y[0] - pos[0]) / (delta ** 3) + pos[0] / np.linalg.norm(pos) ** 3)
         # equation of motion on y
         y4 = -G * (m_sun + m_object) / (r ** 3) * y[1] \
-             - G * planet.m * ((y[1] - planet.completeOrbitalElem2Vector(t)[1]) / (delta ** 3)
-                               + planet.completeOrbitalElem2Vector(t)[1] / np.linalg.norm(
-                    planet.completeOrbitalElem2Vector(t)) ** 3)
+             - G * planet.m * ((y[1] - pos[1]) / (delta ** 3) + pos[1] / np.linalg.norm(pos) ** 3)
         # equation of motion on z
         y5 = -G * (m_sun + m_object) / (r ** 3) * y[2] \
-             - G * planet.m * ((y[2] - planet.completeOrbitalElem2Vector(t)[2]) / (delta ** 3)
-                               + planet.completeOrbitalElem2Vector(t)[2] / np.linalg.norm(
-                    planet.completeOrbitalElem2Vector(t)) ** 3)
+             - G * planet.m * ((y[2] - pos[2]) / (delta ** 3) + pos[2] / np.linalg.norm(pos) ** 3)
         return np.array([y0, y1, y2, y3, y4, y5])
 
     @classmethod
@@ -170,13 +161,9 @@ def extract_vectors(results):
 def vector2orbitalparam(r, rdot):
     # takes two vectors : pos(x,y,z) and v(x,y,z) and computes the orbital parameters at this point
     semi_major_axis = (2 / np.linalg.norm(r) - np.linalg.norm(rdot) ** 2 / mu) ** (-1)
-
     eccentricity = np.linalg.norm(np.cross(rdot, np.cross(r, rdot)) / mu - r / np.linalg.norm(r))
-
     k_vector = np.cross(r, rdot) / (np.linalg.norm(r) * np.linalg.norm(rdot))
-
     inclination = np.arccos(np.around(k_vector[2], 4))  # np.around rounds the value of k_vectors so it stays in [-1,1]
-
     return semi_major_axis, eccentricity, inclination
 
 
@@ -224,7 +211,6 @@ mu = G * m_sun
 
 # definition of Jupiter orbital parameters
 jupiter = planet(m_sun / 1047.348625, 5.202603, 1.303, 0.048498, 100.46, -86.13, 20.0)
-jupiter.orbital_period()
 
 # initial conditions of the asteroid [pos x, pos y, pos z, v x, v y, v z]
 init_state = np.array([a, 0.0, 0.0, 0.0, k / np.sqrt(a), 0.0])
@@ -280,10 +266,9 @@ err_y2 = 150e6 * abs(forward2[0][1] - backward2[-1][1])
 print(' Error on x : ', err_x2, ' km\n', 'Error on y : ', err_y2, ' km')
 
 # plot of the trajectory
-
+jup_param = jupiter.orbitalparam2vectorList(time)
 plt.plot(forward2[:, 0], forward2[:, 1], 'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
-plt.plot(jupiter.orbitalparam2vectorList(time)[:, 0], jupiter.orbitalparam2vectorList(time)[:, 1], 'o',
-         color='green', markersize=1, label='Jupiter')  # plot of Jupiter
+plt.plot(jup_param[:, 0], jup_param[:, 1], 'o', color='green', markersize=1, label='Jupiter')  # plot of Jupiter
 plt.axis('equal')
 plt.title('perturbed trajectory around the sun')
 plt.legend()
