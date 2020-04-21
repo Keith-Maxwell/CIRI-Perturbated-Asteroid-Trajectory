@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UI_v1.ui'
+# Form implementation generated from reading ui file 'UI_v2.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -17,7 +17,7 @@ from matplotlib.figure import Figure
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1120, 845)
+        MainWindow.resize(1114, 851)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setAnimated(True)
         MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -27,11 +27,11 @@ class Ui_MainWindow(object):
 
         # ------------------------------------------------------------------------
         self.groupIntegrationParam = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupIntegrationParam.setGeometry(QtCore.QRect(320, 10, 281, 241))
+        self.groupIntegrationParam.setGeometry(QtCore.QRect(210, 10, 241, 241))
         self.groupIntegrationParam.setObjectName("groupIntegrationParam")
 
         self.inputFinalTime = QtWidgets.QLineEdit(self.groupIntegrationParam)
-        self.inputFinalTime.setGeometry(QtCore.QRect(150, 40, 113, 22))
+        self.inputFinalTime.setGeometry(QtCore.QRect(120, 40, 113, 22))
         self.inputFinalTime.setObjectName("inputFinalTime")
 
         self.label_2 = QtWidgets.QLabel(self.groupIntegrationParam)
@@ -39,14 +39,22 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
 
         self.inputStep = QtWidgets.QLineEdit(self.groupIntegrationParam)
-        self.inputStep.setGeometry(QtCore.QRect(150, 70, 113, 22))
+        self.inputStep.setGeometry(QtCore.QRect(120, 70, 113, 22))
         self.inputStep.setObjectName("inputStep")
 
         self.label_4 = QtWidgets.QLabel(self.groupIntegrationParam)
         self.label_4.setGeometry(QtCore.QRect(10, 70, 111, 16))
         self.label_4.setObjectName("label_4")
 
-        # ------------------------------------------------------------------------
+        self.methodBox = QtWidgets.QComboBox(self.groupIntegrationParam)
+        self.methodBox.setGeometry(QtCore.QRect(20, 110, 211, 22))
+        self.methodBox.setObjectName("methodBox")
+        self.methodBox.addItem("")
+
+        self.forwBackCheckBox = QtWidgets.QCheckBox(self.groupIntegrationParam)
+        self.forwBackCheckBox.setGeometry(QtCore.QRect(20, 150, 211, 20))
+        self.forwBackCheckBox.setObjectName("forwBackCheckBox")
+
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
         self.groupPlots.setGeometry(QtCore.QRect(40, 320, 1031, 501))
         self.groupPlots.setAlignment(QtCore.Qt.AlignCenter)
@@ -84,52 +92,51 @@ class Ui_MainWindow(object):
 
         # ------------------------------------------------------------------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupPerturbPlanets.setGeometry(QtCore.QRect(10, 10, 281, 241))
+        self.groupPerturbPlanets.setGeometry(QtCore.QRect(10, 10, 191, 241))
         self.groupPerturbPlanets.setObjectName("groupPerturbPlanets")
 
-        self.widget = QtWidgets.QWidget(self.groupPerturbPlanets)
-        self.widget.setGeometry(QtCore.QRect(10, 26, 261, 191))
-        self.widget.setObjectName("widget")
+        self.layoutWidget = QtWidgets.QWidget(self.groupPerturbPlanets)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 26, 171, 191))
+        self.layoutWidget.setObjectName("layoutWidget")
 
-        self.gridLayout = QtWidgets.QGridLayout(self.widget)
+        self.gridLayout = QtWidgets.QGridLayout(self.layoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.mercuryCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.mercuryCheckBox.setEnabled(False)  # TODO : implement Mercury
+
+        self.mercuryCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
+        self.mercuryCheckBox.setEnabled(False) # TODO : implement Mercury
         self.mercuryCheckBox.setTristate(False)
         self.mercuryCheckBox.setObjectName("mercuryCheckBox")
         self.gridLayout.addWidget(self.mercuryCheckBox, 0, 0, 1, 1)
-        self.jupiterCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.jupiterCheckBox.setEnabled(True)
-        self.jupiterCheckBox.setTristate(False)
+        self.jupiterCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
         self.jupiterCheckBox.setObjectName("jupiterCheckBox")
         self.gridLayout.addWidget(self.jupiterCheckBox, 0, 1, 1, 1)
-        self.venusCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.venusCheckBox.setEnabled(False)  # TODO : implement Venus
+        self.venusCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
+        self.venusCheckBox.setEnabled(False) # TODO : implement Venus
         self.venusCheckBox.setTristate(False)
         self.venusCheckBox.setObjectName("venusCheckBox")
         self.gridLayout.addWidget(self.venusCheckBox, 1, 0, 1, 1)
-        self.saturnCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.saturnCheckBox.setEnabled(False)  # TODO : implement Saturn
+        self.saturnCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
+        self.saturnCheckBox.setEnabled(False) # TODO : implement Saturn
         self.saturnCheckBox.setTristate(False)
         self.saturnCheckBox.setObjectName("saturnCheckBox")
         self.gridLayout.addWidget(self.saturnCheckBox, 1, 1, 1, 1)
-        self.earthCheckBox = QtWidgets.QCheckBox(self.widget)
-        self.earthCheckBox.setEnabled(False)  # TODO : implement Earth
+        self.earthCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
+        self.earthCheckBox.setEnabled(False) # TODO : implement Earth
         self.earthCheckBox.setTristate(False)
         self.earthCheckBox.setObjectName("earthCheckBox")
         self.gridLayout.addWidget(self.earthCheckBox, 2, 0, 1, 1)
-        self.uranusCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.uranusCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
         self.uranusCheckBox.setEnabled(False)  # TODO : implement Urnanus
         self.uranusCheckBox.setTristate(False)
         self.uranusCheckBox.setObjectName("uranusCheckBox")
         self.gridLayout.addWidget(self.uranusCheckBox, 2, 1, 1, 1)
-        self.marsCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.marsCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
         self.marsCheckBox.setEnabled(False)  # TODO : implement Mars
         self.marsCheckBox.setTristate(False)
         self.marsCheckBox.setObjectName("marsCheckBox")
         self.gridLayout.addWidget(self.marsCheckBox, 3, 0, 1, 1)
-        self.neptuneCheckBox = QtWidgets.QCheckBox(self.widget)
+        self.neptuneCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
         self.neptuneCheckBox.setEnabled(False)  # TODO : implement Neptune
         self.neptuneCheckBox.setTristate(False)
         self.neptuneCheckBox.setObjectName("neptuneCheckBox")
@@ -137,100 +144,178 @@ class Ui_MainWindow(object):
 
         # ------------------------------------------------------------------------
         self.groupAsteroidParam = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupAsteroidParam.setGeometry(QtCore.QRect(630, 10, 471, 241))
+        self.groupAsteroidParam.setGeometry(QtCore.QRect(630, 10, 471, 244))
         self.groupAsteroidParam.setObjectName("groupAsteroidParam")
 
-        self.groupInitialConditions = QtWidgets.QGroupBox(self.groupAsteroidParam)
-        self.groupInitialConditions.setGeometry(QtCore.QRect(250, 20, 211, 211))
-        self.groupInitialConditions.setObjectName("groupInitialConditions")
-        self.groupInitialConditions.hide()
+        self.label_5 = QtWidgets.QLabel(self.groupAsteroidParam)
+        self.label_5.setGeometry(QtCore.QRect(10, 30, 101, 16))
+        self.label_5.setObjectName("label_5")
 
-        self.widget1 = QtWidgets.QWidget(self.groupInitialConditions)
-        self.widget1.setGeometry(QtCore.QRect(10, 20, 191, 191))
-        self.widget1.setObjectName("widget1")
-        self.formLayout = QtWidgets.QFormLayout(self.widget1)
+        self.inputAsteroidMass = QtWidgets.QLineEdit(self.groupAsteroidParam)
+        self.inputAsteroidMass.setGeometry(QtCore.QRect(120, 30, 101, 22))
+        self.inputAsteroidMass.setObjectName("inputAsteroidMass")
+
+        self.label_14 = QtWidgets.QLabel(self.groupAsteroidParam)
+        self.label_14.setGeometry(QtCore.QRect(10, 60, 101, 16))
+        self.label_14.setObjectName("label_14")
+
+        self.inputAsteroidSMaxis = QtWidgets.QLineEdit(self.groupAsteroidParam)
+        self.inputAsteroidSMaxis.setGeometry(QtCore.QRect(120, 60, 101, 22))
+        self.inputAsteroidSMaxis.setObjectName("inputAsteroidSMaxis")
+
+        self.tabWidget = QtWidgets.QTabWidget(self.groupAsteroidParam)
+        self.tabWidget.setGeometry(QtCore.QRect(250, 10, 211, 228))
+        self.tabWidget.setObjectName("tabWidget")
+        self.tabWidget.hide()
+
+        self.xyzTab = QtWidgets.QWidget()
+        self.xyzTab.setObjectName("xyzTab")
+
+        self.layoutWidget1 = QtWidgets.QWidget(self.xyzTab)
+        self.layoutWidget1.setGeometry(QtCore.QRect(10, 10, 191, 181))
+        self.layoutWidget1.setObjectName("layoutWidget1")
+
+        self.formLayout = QtWidgets.QFormLayout(self.layoutWidget1)
         self.formLayout.setContentsMargins(0, 0, 0, 0)
         self.formLayout.setObjectName("formLayout")
 
-        self.label_7 = QtWidgets.QLabel(self.widget1)
+        self.label_7 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_7.setObjectName("label_7")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_7)
 
-        self.inputPosX = QtWidgets.QLineEdit(self.widget1)
+        self.inputPosX = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputPosX.setObjectName("inputPosX")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.inputPosX)
 
-        self.label_8 = QtWidgets.QLabel(self.widget1)
+        self.label_8 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_8.setObjectName("label_8")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_8)
 
-        self.inputPosY = QtWidgets.QLineEdit(self.widget1)
+        self.inputPosY = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputPosY.setObjectName("inputPosY")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.inputPosY)
 
-        self.label_9 = QtWidgets.QLabel(self.widget1)
+        self.label_9 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_9.setObjectName("label_9")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_9)
 
-        self.inputPosZ = QtWidgets.QLineEdit(self.widget1)
+        self.inputPosZ = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputPosZ.setObjectName("inputPosZ")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.inputPosZ)
 
-        self.label_10 = QtWidgets.QLabel(self.widget1)
+        self.label_10 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_10.setObjectName("label_10")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_10)
 
-        self.inputVelX = QtWidgets.QLineEdit(self.widget1)
+        self.inputVelX = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputVelX.setObjectName("inputVelX")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.inputVelX)
 
-        self.label_11 = QtWidgets.QLabel(self.widget1)
+        self.label_11 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_11.setObjectName("label_11")
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_11)
 
-        self.inputVelY = QtWidgets.QLineEdit(self.widget1)
+        self.inputVelY = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputVelY.setObjectName("inputVelY")
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.inputVelY)
 
-        self.label_12 = QtWidgets.QLabel(self.widget1)
+        self.label_12 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_12.setObjectName("label_12")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label_12)
 
-        self.inputVelZ = QtWidgets.QLineEdit(self.widget1)
+        self.inputVelZ = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputVelZ.setObjectName("inputVelZ")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputVelZ)
 
         # ------------------------------------------------------------------------
-        self.groupOrbitalParameters = QtWidgets.QGroupBox(self.groupAsteroidParam)
-        self.groupOrbitalParameters.setGeometry(QtCore.QRect(10, 20, 231, 211))
 
-        self.groupOrbitalParameters.setObjectName("groupOrbitalParameters")
-        self.label_5 = QtWidgets.QLabel(self.groupOrbitalParameters)
+        self.label_5 = QtWidgets.QLabel(self.groupAsteroidParam)
         self.label_5.setGeometry(QtCore.QRect(10, 30, 101, 16))
         self.label_5.setObjectName("label_5")
 
-        self.label_6 = QtWidgets.QLabel(self.groupOrbitalParameters)
+        self.label_6 = QtWidgets.QLabel(self.groupAsteroidParam)
         self.label_6.setGeometry(QtCore.QRect(10, 60, 121, 16))
         self.label_6.setObjectName("label_6")
 
-        self.inputAsteroidMass = QtWidgets.QLineEdit(self.groupOrbitalParameters)
+        self.inputAsteroidMass = QtWidgets.QLineEdit(self.groupAsteroidParam)
         self.inputAsteroidMass.setGeometry(QtCore.QRect(120, 30, 101, 22))
         self.inputAsteroidMass.setObjectName("inputAsteroidMass")
 
-        self.inputAsteroidSmAxis = QtWidgets.QLineEdit(self.groupOrbitalParameters)
+        self.inputAsteroidSmAxis = QtWidgets.QLineEdit(self.groupAsteroidParam)
         self.inputAsteroidSmAxis.setGeometry(QtCore.QRect(120, 60, 101, 22))
         self.inputAsteroidSmAxis.setObjectName("inputAsteroidSmAxis")
 
-        self.circularCheckBox = QtWidgets.QCheckBox(self.groupOrbitalParameters)
+        self.circularCheckBox = QtWidgets.QCheckBox(self.groupAsteroidParam)
         self.circularCheckBox.setGeometry(QtCore.QRect(120, 90, 101, 22))
         self.circularCheckBox.setTristate(False)
         self.circularCheckBox.setObjectName("circularCheckBox")
         self.circularCheckBox.setChecked(True)
         self.circularCheckBox.stateChanged.connect(self.hide_show_InitialCond)
 
-        # ------------------------------------------------------------------------
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)  # TODO : improve the progress estimation
-        self.progressBar.setGeometry(QtCore.QRect(250, 300, 631, 16))
+        self.tabWidget.addTab(self.xyzTab, "")
+        self.orbitTab = QtWidgets.QWidget()
+        self.orbitTab.setObjectName("orbitTab")
+
+        self.widget = QtWidgets.QWidget(self.orbitTab)
+        self.widget.setGeometry(QtCore.QRect(20, 6, 181, 181))
+        self.widget.setObjectName("widget")
+
+        self.formLayout_2 = QtWidgets.QFormLayout(self.widget)
+        self.formLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.formLayout_2.setObjectName("formLayout_2")
+
+        self.label_18 = QtWidgets.QLabel(self.widget)
+        self.label_18.setObjectName("label_18")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_18)
+
+        self.inputEcc = QtWidgets.QLineEdit(self.widget)
+        self.inputEcc.setObjectName("inputEcc")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.inputEcc)
+
+        self.label_17 = QtWidgets.QLabel(self.widget)
+        self.label_17.setObjectName("label_17")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_17)
+
+        self.inputInc = QtWidgets.QLineEdit(self.widget)
+        self.inputInc.setObjectName("inputInc")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.inputInc)
+
+        self.label_13 = QtWidgets.QLabel(self.widget)
+        self.label_13.setObjectName("label_13")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_13)
+
+        self.label_15 = QtWidgets.QLabel(self.widget)
+        self.label_15.setObjectName("label_15")
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_15)
+
+        self.inputAop = QtWidgets.QLineEdit(self.widget)
+        self.inputAop.setObjectName("inputAop")
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.inputAop)
+
+        self.label_19 = QtWidgets.QLabel(self.widget)
+        self.label_19.setObjectName("label_19")
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_19)
+
+        self.inputM = QtWidgets.QLineEdit(self.widget)
+        self.inputM.setObjectName("inputM")
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.inputM)
+
+        self.label_16 = QtWidgets.QLabel(self.widget)
+        self.label_16.setObjectName("label_16")
+        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label_16)
+
+        self.inputEpoch = QtWidgets.QLineEdit(self.widget)
+        self.inputEpoch.setObjectName("inputEpoch")
+        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputEpoch)
+
+        self.inputLan = QtWidgets.QLineEdit(self.widget)
+        self.inputLan.setObjectName("inputLan")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.inputLan)
+
+        self.tabWidget.addTab(self.orbitTab, "")
+
+        self.progressBar = QtWidgets.QProgressBar(self.centralwidget) #TODO : improve implementation inside code
+        self.progressBar.setGeometry(QtCore.QRect(800, 280, 301, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar.setTextVisible(False)
@@ -239,8 +324,16 @@ class Ui_MainWindow(object):
 
         # ------------------------------------------------------------------------
         self.StartButton = QtWidgets.QPushButton(self.centralwidget)
-        self.StartButton.setGeometry(QtCore.QRect(510, 260, 93, 28))
+        self.StartButton.setGeometry(QtCore.QRect(670, 260, 121, 51))
         self.StartButton.setObjectName("StartButton")
+
+        self.warningLabel = QtWidgets.QLabel(self.centralwidget)
+        self.warningLabel.setGeometry(QtCore.QRect(40, 260, 491, 61))
+        self.warningLabel.setObjectName("warningLabel")
+        self.fwbwOutputLabel = QtWidgets.QLabel(self.centralwidget)
+        self.fwbwOutputLabel.setGeometry(QtCore.QRect(470, 20, 141, 231))
+        self.fwbwOutputLabel.setWordWrap(True)
+        self.fwbwOutputLabel.setObjectName("fwbwOutputLabel")
 
         self.StartButton.clicked.connect(self.Start)
 
@@ -251,11 +344,13 @@ class Ui_MainWindow(object):
         self.groupAsteroidParam.raise_()
         self.progressBar.raise_()
         self.StartButton.raise_()
+        self.warningLabel.raise_()
+        self.fwbwOutputLabel.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
 
         # ------------------------------------------------------------------------
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1120, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1114, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
@@ -266,6 +361,7 @@ class Ui_MainWindow(object):
 
         # ------------------------------------------------------------------------
         self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -274,6 +370,8 @@ class Ui_MainWindow(object):
         self.groupIntegrationParam.setTitle(_translate("MainWindow", "Integration parameters"))
         self.label_2.setText(_translate("MainWindow", "Number of days :"))
         self.label_4.setText(_translate("MainWindow", "Step :"))
+        self.methodBox.setItemText(0, _translate("MainWindow", "RungeKutta4"))
+        self.forwBackCheckBox.setText(_translate("MainWindow", "Forward-Backward integration"))
         self.groupPlots.setTitle(_translate("MainWindow", "Plots"))
         self.label_3.setText(_translate("MainWindow", "Trajectory of the asteroid"))
         self.label.setText(_translate("MainWindow", "Variations of the orbital parameters"))
@@ -287,18 +385,26 @@ class Ui_MainWindow(object):
         self.marsCheckBox.setText(_translate("MainWindow", "Mars"))
         self.neptuneCheckBox.setText(_translate("MainWindow", "Neptune"))
         self.groupAsteroidParam.setTitle(_translate("MainWindow", "Asteroid parameters"))
-        self.groupInitialConditions.setTitle(_translate("MainWindow", "Initial conditions"))
+        self.label_5.setText(_translate("MainWindow", "Mass (in Suns):"))
+        self.circularCheckBox.setText(_translate("MainWindow", "Circular orbit"))
+        self.label_14.setText(_translate("MainWindow", "Semi-Major axis"))
         self.label_7.setText(_translate("MainWindow", "Position x :"))
         self.label_8.setText(_translate("MainWindow", "Position y :"))
         self.label_9.setText(_translate("MainWindow", "Position z :"))
         self.label_10.setText(_translate("MainWindow", "Velocity x :"))
         self.label_11.setText(_translate("MainWindow", "Velocity y :"))
         self.label_12.setText(_translate("MainWindow", "Velocity z :"))
-        self.groupOrbitalParameters.setTitle(_translate("MainWindow", "Orbital parameters"))
-        self.label_5.setText(_translate("MainWindow", "Mass (in Suns):"))
-        self.label_6.setText(_translate("MainWindow", "Semi-major axis :"))
-        self.circularCheckBox.setText(_translate("MainWindow", "Circular orbit"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.xyzTab), _translate("MainWindow", "Pos/Vel"))
+        self.label_18.setText(_translate("MainWindow", "E : "))
+        self.label_17.setText(_translate("MainWindow", "INC :"))
+        self.label_13.setText(_translate("MainWindow", "LAN :"))
+        self.label_15.setText(_translate("MainWindow", "AOP :"))
+        self.label_19.setText(_translate("MainWindow", "M :"))
+        self.label_16.setText(_translate("MainWindow", "Epoch :"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.orbitTab), _translate("MainWindow", "Orbit param"))
         self.StartButton.setText(_translate("MainWindow", "Start !"))
+        self.warningLabel.setText(_translate("MainWindow", " ")) #TODO : connect to error output
+        self.fwbwOutputLabel.setText(_translate("MainWindow", " ")) # TODO : connect to Forward Backward output
 
     def Start(self):
         if self.jupiterCheckBox.checkState():  # TODO : implement other planets
@@ -344,11 +450,11 @@ class Ui_MainWindow(object):
 
     def hide_show_InitialCond(self):
         if self.circularCheckBox.checkState():
-            self.groupInitialConditions.hide()
+            self.tabWidget.hide()
         else:
-            self.groupInitialConditions.show()
+            self.tabWidget.show()
 
-    def get_init_state(self):
+    def get_init_state(self): #TODO : choose between xyz position or orbital parameters in function of the tab selected
         if self.circularCheckBox.checkState():  # Circular initial orbit
             self.init_state = np.array(
                 [float(self.inputAsteroidSmAxis.text()), 0, 0,
@@ -358,7 +464,7 @@ class Ui_MainWindow(object):
                 [float(self.inputPosX.text()), float(self.inputPosY.text()), float(self.inputPosZ.text()),
                  float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
 
-    def PlotTrajectory(self, planet=None):
+    def PlotTrajectory(self, planet=None): #TODO : set axis equal
         self.figure1.clear()
         self.ax = self.figure1.add_subplot(111)
         self.ax.plot(self.results[:, 0],
@@ -372,7 +478,7 @@ class Ui_MainWindow(object):
         self.ax.tick_params(colors='white')
         self.figure1.patch.set_facecolor((39/255, 42/255, 49/255))
         self.trajectory_canvas.draw()
-        self.trajectory_canvas.print_png('Plots/trajectory.png')
+        self.trajectory_canvas.print_png('Plots/trajectory.png') #TODO : find a better solution than printing and calling
 
     def PlotOrbitVar(self, val1, val2, val3, time):
         self.figure2.clear()
@@ -399,7 +505,7 @@ class Ui_MainWindow(object):
         self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 
 
-class planet(object):
+class planet(object): #TODO implement changes from master branch
     def __init__(self, m, a, i, e):
         self.m = m
         self.a = a
