@@ -183,7 +183,6 @@ jupiter.orbital_period()
 init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
 # integration parameters
-niter = 1000  # number of iterations (useless for now, it is auto-determined by np.arange)
 tf = 1000  # final time
 ti = 0  # starting time
 step = 1  # step wanted
@@ -204,8 +203,7 @@ print(' Error on x : ', err_x, ' km\n', 'Error on y : ', err_y, ' km')
 # TODO: Add automatic step adjustment in function of the error ?
 
 # plot of the trajectory
-for i in range(len(forward)):
-    plt.plot(forward[i][0], forward[i][1], 'o', color='red', markersize=1)
+plt.plot(forward[:, 0], forward[:, 1], 'o', color='red', markersize=1)
 plt.axis('equal')
 plt.title('Unperturbed trajectory around the sun')
 plt.show()
