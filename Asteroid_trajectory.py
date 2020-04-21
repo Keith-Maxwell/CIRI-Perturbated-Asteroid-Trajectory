@@ -4,11 +4,15 @@ import time as chrono
 
 
 class planet(object):
-    def __init__(self, m, a, i, e):
+    def __init__(self, m, a, i, e, Omega, omega, M0, t0):
         self.m = m
         self.a = a
         self.i = i
         self.e = e
+        self.Omega = Omega
+        self.omega = omega
+        self.M0 = M0
+        self.t0 = t0
 
     def orbital_period(self):
         self.T = np.sqrt((4 * np.pi ** 2) / (G * (m_sun + self.m)) * self.a ** 3)
@@ -23,6 +27,42 @@ class planet(object):
     def orbitalparam2vectorList(self, timevector):
         self.posList = [self.orbitalparam2vector(t) for t in timevector]
         return np.array(self.posList)
+    
+    def completeOrbitalElem2Vector(self, t):
+        self.n = k / np.sqrt(self.a ** 3)
+        self.M = self.M0 + self.n * (t - self.t0)
+        # Newton's method
+        self.E = self.newton(self.keplerEquation, self.M0)
+        self.bigXY = np.array([[self.a * (np.cos(self.E) - self.e)],
+                               [self.a * np.sqrt(1 - self.e ** 2) * np.sin(self.E)]])
+        self.bigXYdot = np.array([[- self.n * a ** 2 / (self.a * (1 - self.e * np.cos(self.E)))
+                                   * np.sin(self.E)],
+                                  [self.n * a ** 2 / (self.a * (1 - self.e * np.cos(self.E)))
+                                   * np.sqrt(1 - self.e ** 2) * np.cos(self.E)]])
+        self.position = np.dot(np.dot(np.dot(self.rotation3(-self.Omega),
+                                             self.rotation1(-self.i)),
+                                      self.rotation3(-self.omega)),
+                               self.bigXY)
+        self.velocity = np.dot(np.dot(np.dot(self.rotation3(-self.Omega),
+                                             self.rotation1(-self.i)),
+                                      self.rotation3(-self.omega)),
+                               self.bigXYdot)
+
+    def rotation1(self, theta):
+        return np.array([[1, 0, 0], [0, np.cos(theta), np.sin(theta)], [0, -np.sin(theta), np.cos(theta)]])
+
+    def rotation3(self, theta):
+        return np.array([[np.cos(theta), np.sin(theta), 0], [-np.sin(theta), np.cos(theta), 0], [0, 0, 1]])
+
+    def newton(self, f, E0, h=1e-4):
+        E = E0
+        for _ in range(10):
+            diff = (f(E + h) - f(E)) / h
+            E -= f(E) / diff
+        return E
+
+    def keplerEquation(self, E):
+        return E - self.e * np.sin(E) - self.M
 
 
 class twoBody():  # Only the Sun exerts it's influence on the body.
@@ -37,7 +77,6 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
         y5 = -G * (m_sun + m_object) / (r ** 3) * y[2]  # equation of motion on z
         return np.array([y0, y1, y2, y3, y4, y5])
 
-    # TODO : variable step ?
     @classmethod
     def RK4(cls, time_vector, initial_conditions, h):
         # Definition of the Runge-Kutta method at the order 4
@@ -102,7 +141,6 @@ class threeBody():
             results.append(yin)  # each value calculated for given t is added to the list
         return np.array(results)
 
-    # TODO : Forward and backward for 3body problem
     @classmethod
     def forward_backward(cls, time_vector, initial_conditions, h, planet):
         # allows for error computation. we just need to compute the difference at the starting point
@@ -110,7 +148,6 @@ class threeBody():
         new_y0 = y_forward[-1]  # new initial conditions
         y_backward = cls.RK4(np.flip(time_vector), new_y0, -h, planet)  # call RK4 backwards
         return y_forward, y_backward
-
 
 
 def extract_vectors(results):
@@ -178,7 +215,7 @@ def plotOrbitalVariation(a, e, i, t):
 # initial variables
 m_sun = 1  # mass of the Sun
 m_object = 0  # mass of the object studied
-a = 2  # semi-major axis
+a = (5.2 ** 3 / (3) ** 2) ** (1 / 3)  # semi-major axis
 G = 0.000295824  # gravitation constant expressed in our own system of units
 k = np.sqrt(G)
 mu = G * m_sun
@@ -191,7 +228,7 @@ jupiter.orbital_period()
 init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
 # integration parameters
-tf = 10000  # final time
+tf = 40000  # final time
 ti = 0  # starting time
 step = 1  # step wanted
 
@@ -200,6 +237,7 @@ time = np.arange(ti, tf + step, step)  # creation of the list containing each va
 # =============================================================================================
 # Start of the computation for 2 body problem
 # =============================================================================================
+'''
 start_time = chrono.time()
 forward, backward = twoBody.forward_backward(time, init_state, step)
 
@@ -217,17 +255,17 @@ plt.title('Unperturbed trajectory around the sun')
 plt.show()
 
 # get the position and velocity from previous results
-r_list, rdot_list = extract_vectors(forward)
+#r_list, rdot_list = extract_vectors(forward)
 
 # calculate the orbital parameters from the position and velocity
-a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
+#a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 
 # plot the orbital parameters
-plotOrbitalVariation(a_list, e_list, i_list, time)
+#plotOrbitalVariation(a_list, e_list, i_list, time)
 
 stop_time = chrono.time()
 print("Computation time = ", stop_time-start_time, " seconds")
-
+'''
 # =============================================================================================
 # Start of the computation for 3 body problem
 # =============================================================================================
@@ -259,4 +297,4 @@ a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 plotOrbitalVariation(a_list, e_list, i_list, time[1:])
 
 stop_time = chrono.time()
-print("Computation time = ", stop_time-start_time, " seconds")
+print("Computation time = ", stop_time - start_time, " seconds")
