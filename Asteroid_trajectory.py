@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import time as chrono
 
 
 class planet(object):
@@ -102,6 +103,13 @@ class threeBody():
         return np.array(results)
 
     # TODO : Forward and backward for 3body problem
+    @classmethod
+    def forward_backward(cls, time_vector, initial_conditions, h, planet):
+        # allows for error computation. we just need to compute the difference at the starting point
+        y_forward = cls.RK4(time_vector, initial_conditions, h, planet)  # call RK4 in forward movement
+        new_y0 = y_forward[-1]  # new initial conditions
+        y_backward = cls.RK4(np.flip(time_vector), new_y0, -h, planet)  # call RK4 backwards
+        return y_forward, y_backward
 
 
 
@@ -183,7 +191,7 @@ jupiter.orbital_period()
 init_state = np.array([a, 0, 0, 0, k / np.sqrt(a), 0])
 
 # integration parameters
-tf = 1000  # final time
+tf = 10000  # final time
 ti = 0  # starting time
 step = 1  # step wanted
 
@@ -192,7 +200,7 @@ time = np.arange(ti, tf + step, step)  # creation of the list containing each va
 # =============================================================================================
 # Start of the computation for 2 body problem
 # =============================================================================================
-
+start_time = chrono.time()
 forward, backward = twoBody.forward_backward(time, init_state, step)
 
 # computation of the error between forward and backward
@@ -217,22 +225,23 @@ a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 # plot the orbital parameters
 plotOrbitalVariation(a_list, e_list, i_list, time)
 
+stop_time = chrono.time()
+print("Computation time = ", stop_time-start_time, " seconds")
+
 # =============================================================================================
 # Start of the computation for 3 body problem
 # =============================================================================================
+start_time = chrono.time()
+forward2, backward2 = threeBody.forward_backward(time, init_state, step, jupiter)
 
-results = threeBody.RK4(time, init_state, step, jupiter)
-
-'''
 # computation of the error between forward and backward
 err_x2 = 150e6 * abs(forward2[0][0] - backward2[-1][0])
 err_y2 = 150e6 * abs(forward2[0][1] - backward2[-1][1])
 print(' Error on x : ', err_x2, ' km\n', 'Error on y : ', err_y2, ' km')
-'''
 
 # plot of the trajectory
 
-plt.plot(results[:, 0], results[:, 1], 'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
+plt.plot(forward2[:, 0], forward2[:, 1], 'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
 plt.plot(jupiter.orbitalparam2vectorList(time)[:, 0], jupiter.orbitalparam2vectorList(time)[:, 1], 'o',
          color='green', markersize=1, label='Jupiter')  # plot of Jupiter
 plt.axis('equal')
@@ -241,10 +250,13 @@ plt.legend()
 plt.show()
 
 # get the position and velocity from previous results
-r_list, rdot_list = extract_vectors(results)
+r_list, rdot_list = extract_vectors(forward2)
 
 # calculate the orbital parameters from the position and velocity
 a_list, e_list, i_list = orbital_parameters_list(r_list, rdot_list)
 
 # plot the orbital parameters
 plotOrbitalVariation(a_list, e_list, i_list, time[1:])
+
+stop_time = chrono.time()
+print("Computation time = ", stop_time-start_time, " seconds")
