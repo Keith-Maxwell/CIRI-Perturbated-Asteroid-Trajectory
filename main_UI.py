@@ -3,8 +3,6 @@
 # Form implementation generated from reading ui file 'UI_v2.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
-#
-# WARNING! All changes made in this file will be lost!
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -104,7 +102,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
 
         self.mercuryCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
-        self.mercuryCheckBox.setEnabled(False) # TODO : implement Mercury
+        self.mercuryCheckBox.setEnabled(False)  # TODO : implement Mercury
         self.mercuryCheckBox.setTristate(False)
         self.mercuryCheckBox.setObjectName("mercuryCheckBox")
         self.gridLayout.addWidget(self.mercuryCheckBox, 0, 0, 1, 1)
@@ -112,17 +110,17 @@ class Ui_MainWindow(object):
         self.jupiterCheckBox.setObjectName("jupiterCheckBox")
         self.gridLayout.addWidget(self.jupiterCheckBox, 0, 1, 1, 1)
         self.venusCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
-        self.venusCheckBox.setEnabled(False) # TODO : implement Venus
+        self.venusCheckBox.setEnabled(False)  # TODO : implement Venus
         self.venusCheckBox.setTristate(False)
         self.venusCheckBox.setObjectName("venusCheckBox")
         self.gridLayout.addWidget(self.venusCheckBox, 1, 0, 1, 1)
         self.saturnCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
-        self.saturnCheckBox.setEnabled(False) # TODO : implement Saturn
+        self.saturnCheckBox.setEnabled(False)  # TODO : implement Saturn
         self.saturnCheckBox.setTristate(False)
         self.saturnCheckBox.setObjectName("saturnCheckBox")
         self.gridLayout.addWidget(self.saturnCheckBox, 1, 1, 1, 1)
         self.earthCheckBox = QtWidgets.QCheckBox(self.layoutWidget)
-        self.earthCheckBox.setEnabled(False) # TODO : implement Earth
+        self.earthCheckBox.setEnabled(False)  # TODO : implement Earth
         self.earthCheckBox.setTristate(False)
         self.earthCheckBox.setObjectName("earthCheckBox")
         self.gridLayout.addWidget(self.earthCheckBox, 2, 0, 1, 1)
@@ -314,7 +312,7 @@ class Ui_MainWindow(object):
 
         self.tabWidget.addTab(self.orbitTab, "")
 
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget) #TODO : improve implementation inside code
+        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)  # TODO : improve implementation inside code
         self.progressBar.setGeometry(QtCore.QRect(800, 280, 301, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
@@ -403,30 +401,39 @@ class Ui_MainWindow(object):
         self.label_16.setText(_translate("MainWindow", "Epoch :"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.orbitTab), _translate("MainWindow", "Orbit param"))
         self.StartButton.setText(_translate("MainWindow", "Start !"))
-        self.warningLabel.setText(_translate("MainWindow", " ")) #TODO : connect to error output
-        self.fwbwOutputLabel.setText(_translate("MainWindow", " ")) # TODO : connect to Forward Backward output
+        self.warningLabel.setText(_translate("MainWindow", " "))  # TODO : connect to error output
+        self.fwbwOutputLabel.setText(_translate("MainWindow", " "))
+
+    def proof_inputs(self):  # TODO: proofing of all inputs
+        pass
 
     def Start(self):
         if self.jupiterCheckBox.checkState():  # TODO : implement other planets
             self.progressBar.setValue(0)
 
-            jupiter = planet(m_sun / 1047.348625, 5.2, 0, 0)
-            jupiter.orbital_period()
-
-            self.progressBar.setValue(5)
+            jupiter = planet(m_sun / 1047.348625, 5.202603, 1.303, 0.048498, 100.46, -86.13, 20.0)
 
             self.get_init_state()
 
             self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
                                   int(self.inputStep.text()))  # creation of the list containing each value of time
 
-            self.progressBar.setValue(10)
+            self.progressBar.setValue(10)  # TODO: Better progress bar
 
-            self.results = threeBody.RK4(self.time, self.init_state, int(self.inputStep.text()), jupiter)
-
-            self.progressBar.setValue(50)
+            if self.forwBackCheckBox.isChecked():
+                self.forward, self.backward = threeBody.forward_backward(self.time, self.init_state,
+                                                                         int(self.inputStep.text()), jupiter)
+                self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0])
+                self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1])
+                self.fwbwOutputLabel.setText('Error on x :\n' + str(round(self.err_x, 2)) + ' km\n\n' +
+                                             'Error on y :\n' + str(round(self.err_y, 2)) + ' km')
+                self.results = self.forward
+            else:
+                self.results = threeBody.RK4(self.time, self.init_state, int(self.inputStep.text()), jupiter)
 
             self.PlotTrajectory(jupiter)  # plot of the results + jupiter
+
+            self.progressBar.setValue(60)
 
             self.r_list, self.rdot_list = extract_vectors(self.results)
             self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
@@ -454,7 +461,7 @@ class Ui_MainWindow(object):
         else:
             self.tabWidget.show()
 
-    def get_init_state(self): #TODO : choose between xyz position or orbital parameters in function of the tab selected
+    def get_init_state(self):  # TODO : choose between xyz position or orbital parameters with tab selected
         if self.circularCheckBox.checkState():  # Circular initial orbit
             self.init_state = np.array(
                 [float(self.inputAsteroidSmAxis.text()), 0, 0,
@@ -464,21 +471,23 @@ class Ui_MainWindow(object):
                 [float(self.inputPosX.text()), float(self.inputPosY.text()), float(self.inputPosZ.text()),
                  float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
 
-    def PlotTrajectory(self, planet=None): #TODO : set axis equal
+    def PlotTrajectory(self, planet=None):
         self.figure1.clear()
         self.ax = self.figure1.add_subplot(111)
         self.ax.plot(self.results[:, 0],
-                self.results[:, 1],
-                'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
+                     self.results[:, 1],
+                     'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
         if planet:
             self.ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
-                    planet.orbitalparam2vectorList(self.time)[:, 1],
-                    'o', color='green', markersize=1, label='planet')  # plot of the planet
+                         planet.orbitalparam2vectorList(self.time)[:, 1],
+                         'o', color='green', markersize=1, label='planet')  # plot of the planet
         self.ax.set_facecolor(plot_background_color)
         self.ax.tick_params(colors='white')
+        self.ax.legend()
         self.figure1.patch.set_facecolor((39/255, 42/255, 49/255))
         self.trajectory_canvas.draw()
-        self.trajectory_canvas.print_png('Plots/trajectory.png') #TODO : find a better solution than printing and calling
+        # TODO : find a better solution than printing and calling
+        self.trajectory_canvas.print_png('Plots/trajectory.png')
 
     def PlotOrbitVar(self, val1, val2, val3, time):
         self.figure2.clear()
@@ -486,7 +495,7 @@ class Ui_MainWindow(object):
         self.ax1.plot(time, val1)
         self.ax1.set_facecolor(plot_background_color)
         self.ax1.tick_params(colors='white')
-        self.ax1.legend('a') # Variations of the Semi-major axis [a]
+        self.ax1.legend('a')  # Variations of the Semi-major axis [a]
         self.ax2 = self.figure2.add_subplot(312)
         self.ax2.plot(time, val2)
         self.ax2.set_facecolor(plot_background_color)
@@ -505,26 +514,69 @@ class Ui_MainWindow(object):
         self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 
 
-class planet(object): #TODO implement changes from master branch
-    def __init__(self, m, a, i, e):
+class planet(object):
+    def __init__(self, m, a, i, e, Omega, omega, M0, t0=0):
         self.m = m
         self.a = a
-        self.i = i
+        self.i = np.radians(i)
         self.e = e
-
-    def orbital_period(self):
-        self.T = np.sqrt((4 * np.pi ** 2) / (G * (m_sun + self.m)) * self.a ** 3)
+        self.Omega = np.radians(Omega)
+        self.omega = np.radians(omega)
+        self.M0 = np.radians(M0)
+        self.t0 = t0
+        self.T = np.sqrt((4 * np.pi ** 2) /
+                         (G * (m_sun + self.m)) * self.a ** 3)
         self.w = 2 * np.pi / self.T
 
     def orbitalparam2vector(self, t):
-        x = self.a * np.cos(self.w * t)
-        y = self.a * np.sin(self.w * t)
-        z = 0
-        return [x, y, z]
+        self.x = self.a * np.cos(self.w * t)
+        self.y = self.a * np.sin(self.w * t)
+        self.z = 0
+        return [self.x, self.y, self.z]
 
     def orbitalparam2vectorList(self, timevector):
-        self.posList = [self.orbitalparam2vector(t) for t in timevector]
+        self.posList = [self.completeOrbitalElem2Vector(t) for t in timevector]
         return np.array(self.posList)
+
+    def completeOrbitalElem2Vector(self, t):
+        self.n = k / np.sqrt(self.a ** 3)
+        self.M = self.M0 + self.n * (t - self.t0)
+        self.E = self.newton(self.keplerEquation, self.M0)
+        self.bigX = self.a * (np.cos(self.E) - self.e)
+        self.bigY = self.a * np.sqrt(1 - self.e ** 2) * np.sin(self.E)
+        self.bigXdot = - self.n * self.a ** 2 / \
+            (self.a * (1 - self.e * np.cos(self.E))) * np.sin(self.E)
+        self.bigYdot = self.n * self.a ** 2 / \
+            (self.a * (1 - self.e * np.cos(self.E))) * np.sqrt(1 - self.e ** 2) * np.cos(self.E)
+        self.position = np.dot(np.dot(np.dot(self.rotation3(-self.Omega),
+                                             self.rotation1(-self.i)),
+                                      self.rotation3(-self.omega)),
+                               np.array([[self.bigX], [self.bigY], [0]]))
+        self.velocity = np.dot(np.dot(np.dot(self.rotation3(-self.Omega),
+                                             self.rotation1(-self.i)),
+                                      self.rotation3(-self.omega)),
+                               np.array([[self.bigXdot], [self.bigYdot], [0]]))
+        return [self.position[0, 0], self.position[1, 0], self.position[2, 0]]
+
+    def rotation1(self, theta):
+        return np.array([[1, 0, 0],
+                         [0, np.cos(theta), np.sin(theta)],
+                         [0, -np.sin(theta), np.cos(theta)]])
+
+    def rotation3(self, theta):
+        return np.array([[np.cos(theta), np.sin(theta), 0],
+                         [-np.sin(theta), np.cos(theta), 0],
+                         [0, 0, 1]])
+
+    def newton(self, f, E0, h=1e-4):
+        E = E0
+        for _ in range(5):
+            diff = (f(E + h) - f(E)) / h
+            E -= f(E) / diff
+        return E
+
+    def keplerEquation(self, E):
+        return E - self.e * np.sin(E) - self.M
 
 
 class twoBody():  # Only the Sun exerts it's influence on the body.
@@ -571,22 +623,22 @@ class threeBody():
         y1 = y[4]  # velocity on y
         y2 = y[5]  # velocity on z
         r = np.sqrt(y[0] ** 2 + y[1] ** 2 + y[2] ** 2)  # norm of the vector r
-        # delta is the difference between r and position_Jupiter (distance between the asteroid and jupiter)
-        delta = np.sqrt(
-            (y[0] - planet.orbitalparam2vector(t)[0]) ** 2 + (y[1] - planet.orbitalparam2vector(t)[1]) ** 2 + (
-                    y[2] - planet.orbitalparam2vector(t)[2]) ** 2)
+        pos = planet.completeOrbitalElem2Vector(t)
+        # delta is the difference between r and position_Jupiter distance between asteroid & jup
+        delta = np.sqrt((y[0] - pos[0]) ** 2 + (y[1] - pos[1])
+                        ** 2 + (y[2] - pos[2]) ** 2)
         # equation of motion on x
         y3 = -G * (m_sun + float(ui.inputAsteroidMass.text())) / (r ** 3) * y[0] \
-             - G * planet.m * ((y[0] - planet.orbitalparam2vector(t)[0]) / (delta ** 3)
-                               + planet.orbitalparam2vector(t)[0] / np.linalg.norm(planet.orbitalparam2vector(t)) ** 3)
+             - G * planet.m * ((y[0] - pos[0]) / (delta ** 3) +
+                               pos[0] / np.linalg.norm(pos) ** 3)
         # equation of motion on y
         y4 = -G * (m_sun + float(ui.inputAsteroidMass.text())) / (r ** 3) * y[1] \
-             - G * planet.m * ((y[1] - planet.orbitalparam2vector(t)[1]) / (delta ** 3)
-                               + planet.orbitalparam2vector(t)[1] / np.linalg.norm(planet.orbitalparam2vector(t)) ** 3)
+             - G * planet.m * ((y[1] - pos[1]) / (delta ** 3) +
+                               pos[1] / np.linalg.norm(pos) ** 3)
         # equation of motion on z
         y5 = -G * (m_sun + float(ui.inputAsteroidMass.text())) / (r ** 3) * y[2] \
-             - G * planet.m * ((y[2] - planet.orbitalparam2vector(t)[2]) / (delta ** 3)
-                               + planet.orbitalparam2vector(t)[2] / np.linalg.norm(planet.orbitalparam2vector(t)) ** 3)
+             - G * planet.m * ((y[2] - pos[2]) / (delta ** 3) +
+                               pos[2] / np.linalg.norm(pos) ** 3)
         return np.array([y0, y1, y2, y3, y4, y5])
 
     @classmethod
@@ -601,8 +653,19 @@ class threeBody():
             k3 = cls.func(time_vector[i] + h / 2, yin + h / 2 * k2, planet)
             k4 = cls.func(time_vector[i] + h, yin + h * k3, planet)
             yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
-            results.append(yin)  # each value calculated for given t is added to the list
+            # each value calculated for given t is added to the list
+            results.append(yin)
         return np.array(results)
+
+    @classmethod
+    def forward_backward(cls, time_vector, initial_conditions, h, planet):
+        # allows for error computation. we just need to compute the difference at the starting point
+        # call RK4 in forward movement
+        y_forward = cls.RK4(time_vector, initial_conditions, h, planet)
+        new_y0 = y_forward[-1]  # new initial conditions
+        y_backward = cls.RK4(np.flip(time_vector), new_y0, -
+                             h, planet)  # call RK4 backwards
+        return y_forward, y_backward
 
 
 def extract_vectors(results):
