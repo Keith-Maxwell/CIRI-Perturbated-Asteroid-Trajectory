@@ -32,9 +32,10 @@ class planet(object):
         self.E = self.newton(self.keplerEquation, self.M0)
         self.bigX = self.a * (np.cos(self.E) - self.e)
         self.bigY = self.a * np.sqrt(1 - self.e ** 2) * np.sin(self.E)
-        self.bigXdot = - self.n * a ** 2 / (self.a * (1 - self.e * np.cos(self.E))) * np.sin(self.E)
-        self.bigYdot = self.n * a ** 2 / (self.a * (1 - self.e * np.cos(self.E))) * np.sqrt(1 - self.e ** 2) * np.cos(
-            self.E)
+        self.bigXdot = - self.n * self.a ** 2 / \
+            (self.a * (1 - self.e * np.cos(self.E))) * np.sin(self.E)
+        self.bigYdot = self.n * self.a ** 2 / \
+            (self.a * (1 - self.e * np.cos(self.E))) * np.sqrt(1 - self.e ** 2) * np.cos(self.E)
         self.position = np.dot(np.dot(np.dot(self.rotation3(-self.Omega),
                                              self.rotation1(-self.i)),
                                       self.rotation3(-self.omega)),
@@ -46,10 +47,14 @@ class planet(object):
         return [self.position[0, 0], self.position[1, 0], self.position[2, 0]]
 
     def rotation1(self, theta):
-        return np.array([[1, 0, 0], [0, np.cos(theta), np.sin(theta)], [0, -np.sin(theta), np.cos(theta)]])
+        return np.array([[1, 0, 0],
+                         [0, np.cos(theta), np.sin(theta)],
+                         [0, -np.sin(theta), np.cos(theta)]])
 
     def rotation3(self, theta):
-        return np.array([[np.cos(theta), np.sin(theta), 0], [-np.sin(theta), np.cos(theta), 0], [0, 0, 1]])
+        return np.array([[np.cos(theta), np.sin(theta), 0],
+                         [-np.sin(theta), np.cos(theta), 0],
+                         [0, 0, 1]])
 
     def newton(self, f, E0, h=1e-4):
         E = E0
@@ -69,9 +74,12 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
         y1 = y[4]  # velocity on y
         y2 = y[5]  # velocity on z
         r = np.sqrt(y[0] ** 2 + y[1] ** 2 + y[2] ** 2)  # norm of the vector r
-        y3 = -G * (m_sun + m_object) / (r ** 3) * y[0]  # equation of motion on x
-        y4 = -G * (m_sun + m_object) / (r ** 3) * y[1]  # equation of motion on y
-        y5 = -G * (m_sun + m_object) / (r ** 3) * y[2]  # equation of motion on z
+        y3 = -G * (m_sun + m_object) / (r ** 3) * \
+            y[0]  # equation of motion on x
+        y4 = -G * (m_sun + m_object) / (r ** 3) * \
+            y[1]  # equation of motion on y
+        y5 = -G * (m_sun + m_object) / (r ** 3) * \
+            y[2]  # equation of motion on z
         return np.array([y0, y1, y2, y3, y4, y5])
 
     @classmethod
@@ -86,15 +94,18 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
             k3 = cls.func(t + h / 2, yin + h / 2 * k2)
             k4 = cls.func(t + h, yin + h * k3)
             yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
-            results.append(yin)  # each value calculated for given t is added to the list
+            # each value calculated for given t is added to the list
+            results.append(yin)
         return np.array(results)
 
     @classmethod
     def forward_backward(cls, time_vector, initial_conditions, h):
         # allows for error computation. we just need to compute the difference at the starting point
-        y_forward = cls.RK4(time_vector, initial_conditions, h)  # call RK4 in forward movement
+        # call RK4 in forward movement
+        y_forward = cls.RK4(time_vector, initial_conditions, h)
         new_y0 = y_forward[-1]  # new initial conditions
-        y_backward = cls.RK4(np.flip(time_vector), new_y0, -h)  # call RK4 backwards
+        y_backward = cls.RK4(np.flip(time_vector),
+                             new_y0, -h)  # call RK4 backwards
         return y_forward, y_backward
 
 
@@ -131,7 +142,8 @@ class threeBody():
             k3 = cls.func(time_vector[i] + h / 2, yin + h / 2 * k2, planet)
             k4 = cls.func(time_vector[i] + h, yin + h * k3, planet)
             yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
-            results.append(yin)  # each value calculated for given t is added to the list
+            # each value calculated for given t is added to the list
+            results.append(yin)
         return np.array(results)
 
     @classmethod
@@ -220,7 +232,8 @@ tf = 40000  # final time
 ti = 0  # starting time
 step = 1  # step wanted
 
-time = np.arange(ti, tf + step, step)  # creation of the list containing each value of time
+# creation of the list containing each value of time
+time = np.arange(ti, tf + step, step)
 
 # =============================================================================================
 # Start of the computation for 2 body problem
