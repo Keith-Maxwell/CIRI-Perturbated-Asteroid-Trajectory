@@ -54,7 +54,7 @@ class Ui_MainWindow(object):
         self.forwBackCheckBox.setObjectName("forwBackCheckBox")
 
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupPlots.setGeometry(QtCore.QRect(40, 320, 1031, 501))
+        self.groupPlots.setGeometry(QtCore.QRect(15, 320, 1086, 501))
         self.groupPlots.setAlignment(QtCore.Qt.AlignCenter)
         self.groupPlots.setObjectName("groupPlots")
 
@@ -63,12 +63,12 @@ class Ui_MainWindow(object):
         self.label_3.setObjectName("label_3")
 
         self.label = QtWidgets.QLabel(self.groupPlots)
-        self.label.setGeometry(QtCore.QRect(580, 10, 501, 21))
+        self.label.setGeometry(QtCore.QRect(650, 10, 501, 21))
         self.label.setObjectName("label")
 
         self.plotTrajectory = QtWidgets.QLabel(self.groupPlots)
         self.plotTrajectory.setEnabled(True)
-        self.plotTrajectory.setGeometry(QtCore.QRect(20, 40, 441, 441))
+        self.plotTrajectory.setGeometry(QtCore.QRect(20, 40, 1.33*441, 441))
         self.plotTrajectory.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.plotTrajectory.setText("")
         self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
@@ -76,7 +76,7 @@ class Ui_MainWindow(object):
         self.plotTrajectory.setObjectName("plotTrajectory")
 
         self.plotOrbitVar = QtWidgets.QLabel(self.groupPlots)
-        self.plotOrbitVar.setGeometry(QtCore.QRect(580, 40, 441, 441))
+        self.plotOrbitVar.setGeometry(QtCore.QRect(1.33*441+20, 40, 441, 441))
         self.plotOrbitVar.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.plotOrbitVar.setText("")
         self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
@@ -312,7 +312,7 @@ class Ui_MainWindow(object):
 
         self.tabWidget.addTab(self.orbitTab, "")
 
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)  # TODO : improve implementation inside code
+        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)  # TODO : improve progress bar
         self.progressBar.setGeometry(QtCore.QRect(800, 280, 301, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
@@ -412,24 +412,24 @@ class Ui_MainWindow(object):
             self.progressBar.setValue(0)
 
             jupiter = planet(m_sun / 1047.348625, 5.202603, 1.303, 0.048498, 100.46, -86.13, 20.0)
-
-            self.get_init_state()
+            ast = Asteroid()
+            init = ast.get_init_state()
 
             self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
                                   int(self.inputStep.text()))  # creation of the list containing each value of time
 
-            self.progressBar.setValue(10)  # TODO: Better progress bar
+            self.progressBar.setValue(10)
 
             if self.forwBackCheckBox.isChecked():
-                self.forward, self.backward = threeBody.forward_backward(self.time, self.init_state,
+                self.forward, self.backward = threeBody.forward_backward(self.time, init,
                                                                          int(self.inputStep.text()), jupiter)
-                self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0])
-                self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1])
+                self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
+                self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
                 self.fwbwOutputLabel.setText('Error on x :\n' + str(round(self.err_x, 2)) + ' km\n\n' +
                                              'Error on y :\n' + str(round(self.err_y, 2)) + ' km')
                 self.results = self.forward
             else:
-                self.results = threeBody.RK4(self.time, self.init_state, int(self.inputStep.text()), jupiter)
+                self.results = threeBody.RK4(self.time, init, int(self.inputStep.text()), jupiter)
 
             self.PlotTrajectory(jupiter)  # plot of the results + jupiter
 
@@ -447,10 +447,11 @@ class Ui_MainWindow(object):
             self.progressBar.setValue(100)
 
         else:  # No Jupiter
-            self.get_init_state()
+            ast = Asteroid()
+            init = ast.get_init_state()
             self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
                                   int(self.inputStep.text()))  # creation of the list containing each value of time
-            self.results = twoBody.RK4(self.time, self.init_state, int(self.inputStep.text()))
+            self.results = twoBody.RK4(self.time, init, int(self.inputStep.text()))
             self.PlotTrajectory()
             self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/trajectory.png"))
             self.progressBar.setValue(100)
@@ -461,19 +462,10 @@ class Ui_MainWindow(object):
         else:
             self.tabWidget.show()
 
-    def get_init_state(self):  # TODO : choose between xyz position or orbital parameters with tab selected
-        if self.circularCheckBox.checkState():  # Circular initial orbit
-            self.init_state = np.array(
-                [float(self.inputAsteroidSmAxis.text()), 0, 0,
-                 0, k / np.sqrt(float(self.inputAsteroidSmAxis.text())), 0])
-        else:  # User defined initial parameters # TODO : Verify the type of the input and make it foolproof
-            self.init_state = np.array(
-                [float(self.inputPosX.text()), float(self.inputPosY.text()), float(self.inputPosZ.text()),
-                 float(self.inputVelX.text()), float(self.inputVelY.text()), float(self.inputVelZ.text())])
-
     def PlotTrajectory(self, planet=None):
         self.figure1.clear()
         self.ax = self.figure1.add_subplot(111)
+        self.ax.plot(0, 0, 'o', color='yellow', markersize='10', label='Sun')  # Plot of the Sun for reference
         self.ax.plot(self.results[:, 0],
                      self.results[:, 1],
                      'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
@@ -484,7 +476,8 @@ class Ui_MainWindow(object):
         self.ax.set_facecolor(plot_background_color)
         self.ax.tick_params(colors='white')
         self.ax.legend()
-        self.figure1.patch.set_facecolor((39/255, 42/255, 49/255))
+        self.ax.axis('equal')
+        self.figure1.patch.set_facecolor(plot_face_color)
         self.trajectory_canvas.draw()
         # TODO : find a better solution than printing and calling
         self.trajectory_canvas.print_png('Plots/trajectory.png')
@@ -556,7 +549,8 @@ class planet(object):
                                              self.rotation1(-self.i)),
                                       self.rotation3(-self.omega)),
                                np.array([[self.bigXdot], [self.bigYdot], [0]]))
-        return [self.position[0, 0], self.position[1, 0], self.position[2, 0]]
+        return [self.position[0, 0], self.position[1, 0], self.position[2, 0],
+                self.velocity[0, 0], self.velocity[1, 0], self.velocity[2, 0]]
 
     def rotation1(self, theta):
         return np.array([[1, 0, 0],
@@ -579,6 +573,44 @@ class planet(object):
         return E - self.e * np.sin(E) - self.M
 
 
+class Asteroid(planet):
+    def __init__(self, m=0, a=2, i=0, e=0, Omega=0, omega=0, M0=0, t0=0):
+        try:
+            self.m = float(ui.inputAsteroidMass.text())
+            self.a = a
+            self.i = i
+            self.e = e
+            self.Omega = Omega
+            self.omega = omega
+            self.M0 = M0
+            self.t0 = t0
+        except ValueError:
+            pass
+
+    def get_init_state(self, t=0):
+        if ui.circularCheckBox.checkState():  # Circular initial orbit
+            self.a = float(ui.inputAsteroidSmAxis.text())
+            self.init_state = np.array([self.a, 0, 0,
+                                        0, k / np.sqrt(self.a), 0])
+            return self.init_state
+        else:  # User defined initial parameters
+            if ui.tabWidget.currentIndex() == 0:  # Defined by position and velocity #FIXME
+                self.init_state = np.array(
+                    [float(ui.inputPosX.text()), float(ui.inputPosY.text()), float(ui.inputPosZ.text()),
+                     float(ui.inputVelX.text()), float(ui.inputVelY.text()), float(ui.inputVelZ.text())])
+                return self.init_state
+            else:  # defined by orbital parameters
+                self.a = float(ui.inputAsteroidSmAxis.text())
+                self.i = np.radians(float(ui.inputInc.text()))
+                self.e = float(ui.inputEcc.text())
+                self.Omega = np.radians(float(ui.inputLan.text()))
+                self.omega = np.radians(float(ui.inputAop.text()))
+                self.M0 = np.radians(float(ui.inputM.text()))
+
+                self.init_state = np.array(self.completeOrbitalElem2Vector(t))
+                return self.init_state
+
+
 class twoBody():  # Only the Sun exerts it's influence on the body.
     @classmethod
     def func(cls, t, y):  # using the state space representation of the equation of motion
@@ -591,7 +623,6 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
         y5 = -G * (m_sun + float(ui.inputAsteroidMass.text())) / (r ** 3) * y[2]  # equation of motion on z
         return np.array([y0, y1, y2, y3, y4, y5])
 
-    # TODO : variable step ?
     @classmethod
     def RK4(cls, time_vector, initial_conditions, h):
         # Definition of the Runge-Kutta method at the order 4
@@ -738,6 +769,7 @@ if __name__ == "__main__":
     app.setPalette(dark_palette)
     app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
     plot_background_color = (0.12, 0.13, 0.15)
+    plot_face_color = (39/255, 42/255, 49/255)
 
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
