@@ -1,9 +1,13 @@
 
 .idea/
+.vscode/
 
 Plots/
 
 Euler.py
 Runge-Kutta4.py
+UI_v2.ui
 
-.vscode/
+
+
+
