@@ -3,6 +3,7 @@
 
 Plots/
 
-test.py
+Euler.py
+Runge-Kutta4.py
 
 .vscode/

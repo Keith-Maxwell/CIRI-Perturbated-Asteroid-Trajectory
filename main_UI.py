@@ -8,8 +8,39 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPalette
 import numpy as np
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas,
+NavigationToolbar2QT as NavigationToolbar
+
+
+class MplCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor(plot_background_color)
+        fig.tight_layout()
+        self.axes = fig.add_subplot(111)
+        self.axes.tick_params(colors='white')
+        self.axes.patch.set_facecolor(plot_face_color)
+        super(MplCanvas, self).__init__(fig)
+
+
+class MplCanvas3subs(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor(plot_background_color)
+        fig.tight_layout()
+        self.axes1 = fig.add_subplot(311)
+        self.axes1.tick_params(colors='white')
+        self.axes1.patch.set_facecolor(plot_face_color)
+        self.axes2 = fig.add_subplot(312)
+        self.axes2.tick_params(colors='white')
+        self.axes2.patch.set_facecolor(plot_face_color)
+        self.axes3 = fig.add_subplot(313)
+        self.axes3.tick_params(colors='white')
+        self.axes3.patch.set_facecolor(plot_face_color)
+        super(MplCanvas3subs, self).__init__(fig)
 
 
 class Ui_MainWindow(object):
@@ -24,6 +55,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
 
         # ------------------------------------------------------------------------
+        # ------------Integration parameters------------
         self.groupIntegrationParam = QtWidgets.QGroupBox(self.centralwidget)
         self.groupIntegrationParam.setGeometry(QtCore.QRect(210, 10, 241, 241))
         self.groupIntegrationParam.setObjectName("groupIntegrationParam")
@@ -53,6 +85,7 @@ class Ui_MainWindow(object):
         self.forwBackCheckBox.setGeometry(QtCore.QRect(20, 150, 211, 20))
         self.forwBackCheckBox.setObjectName("forwBackCheckBox")
 
+        # ------------Plots------------
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
         self.groupPlots.setGeometry(QtCore.QRect(15, 320, 1086, 501))
         self.groupPlots.setAlignment(QtCore.Qt.AlignCenter)
@@ -66,29 +99,29 @@ class Ui_MainWindow(object):
         self.label.setGeometry(QtCore.QRect(650, 10, 501, 21))
         self.label.setObjectName("label")
 
-        self.plotTrajectory = QtWidgets.QLabel(self.groupPlots)
-        self.plotTrajectory.setEnabled(True)
-        self.plotTrajectory.setGeometry(QtCore.QRect(20, 40, 1.33*441, 441))
-        self.plotTrajectory.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.plotTrajectory.setText("")
-        self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
-        self.plotTrajectory.setScaledContents(True)
-        self.plotTrajectory.setObjectName("plotTrajectory")
+        self.trajectory_canvas = MplCanvas(self.groupPlots, width=5, height=4, dpi=100)
+        self.toolbar = NavigationToolbar(self.trajectory_canvas, self.groupPlots)
 
-        self.plotOrbitVar = QtWidgets.QLabel(self.groupPlots)
-        self.plotOrbitVar.setGeometry(QtCore.QRect(1.33*441+20, 40, 441, 441))
-        self.plotOrbitVar.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.plotOrbitVar.setText("")
-        self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/Robert.png"))
-        self.plotOrbitVar.setScaledContents(True)
-        self.plotOrbitVar.setObjectName("plotOrbitVar")
+        self.plotlayout1 = QtWidgets.QVBoxLayout()
+        self.plotlayout1.addWidget(self.toolbar)
+        self.plotlayout1.addWidget(self.trajectory_canvas)
 
-        self.figure1 = Figure()
-        self.trajectory_canvas = FigureCanvas(self.figure1)
-        self.figure2 = Figure()
-        self.orbitVar_canvas = FigureCanvas(self.figure2)
+        self.plotwidget = QtWidgets.QWidget(self.groupPlots)
+        self.plotwidget.setLayout(self.plotlayout1)
+        self.plotwidget.setGeometry(QtCore.QRect(20, 40, 1.33*441, 441))
 
-        # ------------------------------------------------------------------------
+        self.orbitVar_canvas = MplCanvas3subs(self.groupPlots, width=5, height=4, dpi=100)
+        self.toolbar2 = NavigationToolbar(self.orbitVar_canvas, self.groupPlots)
+
+        self.plotlayout2 = QtWidgets.QVBoxLayout()
+        self.plotlayout2.addWidget(self.toolbar2)
+        self.plotlayout2.addWidget(self.orbitVar_canvas)
+
+        self.plotwidget2 = QtWidgets.QWidget(self.groupPlots)
+        self.plotwidget2.setLayout(self.plotlayout2)
+        self.plotwidget2.setGeometry(QtCore.QRect(1.33*441+20, 40, 441, 441))
+
+        # ------------Planets list------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
         self.groupPerturbPlanets.setGeometry(QtCore.QRect(10, 10, 191, 241))
         self.groupPerturbPlanets.setObjectName("groupPerturbPlanets")
@@ -140,7 +173,7 @@ class Ui_MainWindow(object):
         self.neptuneCheckBox.setObjectName("neptuneCheckBox")
         self.gridLayout.addWidget(self.neptuneCheckBox, 3, 1, 1, 1)
 
-        # ------------------------------------------------------------------------
+        # ------------Asteroid parameters------------
         self.groupAsteroidParam = QtWidgets.QGroupBox(self.centralwidget)
         self.groupAsteroidParam.setGeometry(QtCore.QRect(630, 10, 471, 244))
         self.groupAsteroidParam.setObjectName("groupAsteroidParam")
@@ -224,8 +257,6 @@ class Ui_MainWindow(object):
         self.inputVelZ = QtWidgets.QLineEdit(self.layoutWidget1)
         self.inputVelZ.setObjectName("inputVelZ")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputVelZ)
-
-        # ------------------------------------------------------------------------
 
         self.label_5 = QtWidgets.QLabel(self.groupAsteroidParam)
         self.label_5.setGeometry(QtCore.QRect(10, 30, 101, 16))
@@ -312,6 +343,7 @@ class Ui_MainWindow(object):
 
         self.tabWidget.addTab(self.orbitTab, "")
 
+        # ------------Progress Bar------------
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)  # TODO : improve progress bar
         self.progressBar.setGeometry(QtCore.QRect(800, 280, 301, 16))
         self.progressBar.setProperty("value", 0)
@@ -320,7 +352,7 @@ class Ui_MainWindow(object):
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName("progressBar")
 
-        # ------------------------------------------------------------------------
+        # ------------Start Button------------
         self.StartButton = QtWidgets.QPushButton(self.centralwidget)
         self.StartButton.setGeometry(QtCore.QRect(670, 260, 121, 51))
         self.StartButton.setObjectName("StartButton")
@@ -346,13 +378,13 @@ class Ui_MainWindow(object):
         self.fwbwOutputLabel.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
 
-        # ------------------------------------------------------------------------
+        # ------------Menu Bar------------
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1114, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
-        # ------------------------------------------------------------------------
+        # ------------Status bar------------
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
@@ -439,11 +471,6 @@ class Ui_MainWindow(object):
             self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
             self.PlotOrbitVar(self.a_list, self.e_list, self.i_list, self.time[1:])
 
-            self.progressBar.setValue(85)
-
-            self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/trajectory.png"))
-            self.plotOrbitVar.setPixmap(QtGui.QPixmap("Plots/orbitVar.png"))
-
             self.progressBar.setValue(100)
 
         else:  # No Jupiter
@@ -453,7 +480,7 @@ class Ui_MainWindow(object):
                                   int(self.inputStep.text()))  # creation of the list containing each value of time
             self.results = twoBody.RK4(self.time, init, int(self.inputStep.text()))
             self.PlotTrajectory()
-            self.plotTrajectory.setPixmap(QtGui.QPixmap("Plots/trajectory.png"))
+
             self.progressBar.setValue(100)
 
     def hide_show_InitialCond(self):
@@ -463,48 +490,47 @@ class Ui_MainWindow(object):
             self.tabWidget.show()
 
     def PlotTrajectory(self, planet=None):
-        self.figure1.clear()
-        self.ax = self.figure1.add_subplot(111)
-        self.ax.plot(0, 0, 'o', color='yellow', markersize='10', label='Sun')  # Plot of the Sun for reference
-        self.ax.plot(self.results[:, 0],
-                     self.results[:, 1],
-                     'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
+        self.trajectory_canvas.axes.cla()
+
+        self.trajectory_canvas.axes.plot(0, 0, 'o', color='yellow', markersize='10',
+                                         label='Sun')  # Plot of the Sun for reference
+
+        self.trajectory_canvas.axes.plot(self.results[:, 0],
+                                         self.results[:, 1],
+                                         'o', color='red', markersize=1, label='Asteroid')  # plot of the asteroid
+
         if planet:
-            self.ax.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
-                         planet.orbitalparam2vectorList(self.time)[:, 1],
-                         'o', color='green', markersize=1, label='planet')  # plot of the planet
-        self.ax.set_facecolor(plot_background_color)
-        self.ax.tick_params(colors='white')
-        self.ax.legend()
-        self.ax.axis('equal')
-        self.figure1.patch.set_facecolor(plot_face_color)
+            self.trajectory_canvas.axes.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
+                                             planet.orbitalparam2vectorList(self.time)[:, 1],
+                                             'o', color='green', markersize=1, label='planet')  # plot of the planet
+
+        self.trajectory_canvas.axes.tick_params(colors='white')
+        self.trajectory_canvas.axes.patch.set_facecolor(plot_face_color)
+        self.trajectory_canvas.axes.legend()
+        self.trajectory_canvas.axes.axis('equal')
+
         self.trajectory_canvas.draw()
-        # TODO : find a better solution than printing and calling
-        self.trajectory_canvas.print_png('Plots/trajectory.png')
 
-    def PlotOrbitVar(self, val1, val2, val3, time):
-        self.figure2.clear()
-        self.ax1 = self.figure2.add_subplot(311)
-        self.ax1.plot(time, val1)
-        self.ax1.set_facecolor(plot_background_color)
-        self.ax1.tick_params(colors='white')
-        self.ax1.legend('a')  # Variations of the Semi-major axis [a]
-        self.ax2 = self.figure2.add_subplot(312)
-        self.ax2.plot(time, val2)
-        self.ax2.set_facecolor(plot_background_color)
-        self.ax2.tick_params(colors='white')
-        # self.ax2.set_title('Variations of the Eccentricity [e]')
-        self.ax2.legend('e')
-        self.ax3 = self.figure2.add_subplot(313)
-        self.ax3.plot(time, val3)
-        self.ax3.set_facecolor(plot_background_color)
-        self.ax3.tick_params(colors='white')
-        # self.ax3.set_title('Variations of the Inclination [i]')
-        self.ax3.legend('i')
+    def PlotOrbitVar(self, a, e, i, time):
+        self.orbitVar_canvas.axes1.cla()
+        self.orbitVar_canvas.axes2.cla()
+        self.orbitVar_canvas.axes3.cla()
 
-        self.figure2.patch.set_facecolor((39/255, 42/255, 49/255))
+        self.orbitVar_canvas.axes1.plot(time, a)
+        self.orbitVar_canvas.axes1.legend('a')
+        self.orbitVar_canvas.axes2.plot(time, e)
+        self.orbitVar_canvas.axes2.legend('e')
+        self.orbitVar_canvas.axes3.plot(time, i)
+        self.orbitVar_canvas.axes3.legend('i')
+
+        self.axes1.tick_params(colors='white')
+        self.axes1.patch.set_facecolor(plot_face_color)
+        self.axes2.tick_params(colors='white')
+        self.axes2.patch.set_facecolor(plot_face_color)
+        self.axes3.tick_params(colors='white')
+        self.axes3.patch.set_facecolor(plot_face_color)
+
         self.orbitVar_canvas.draw()
-        self.orbitVar_canvas.print_png('Plots/orbitVar.png')
 
 
 class planet(object):
@@ -768,7 +794,7 @@ if __name__ == "__main__":
     dark_palette.setColor(QPalette.HighlightedText, QtGui.QColor(0, 0, 0))
     app.setPalette(dark_palette)
     app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
-    plot_background_color = (0.12, 0.13, 0.15)
+    plot_background_color = (51/255, 54/255, 63/255)
     plot_face_color = (39/255, 42/255, 49/255)
 
     MainWindow = QtWidgets.QMainWindow()
