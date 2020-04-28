@@ -466,20 +466,28 @@ class Ui_MainWindow(object):
 
             self.PlotTrajectory(jupiter)  # plot of the results + jupiter
 
-            self.progressBar.setValue(60)
-
             self.r_list, self.rdot_list = extract_vectors(self.results)
             self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
-            self.PlotOrbitVar(self.a_list, self.e_list, self.i_list, self.time[1:])
+            self.PlotOrbitVar(self.a_list, self.e_list, self.i_list, self.time)
 
             self.progressBar.setValue(100)
 
         else:  # No Jupiter
+            self.progressBar.setValue(0)
             ast = Asteroid()
             init = ast.get_init_state()
             self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
                                   int(self.inputStep.text()))  # creation of the list containing each value of time
-            self.results = twoBody.RK4(self.time, init, int(self.inputStep.text()))
+            if self.forwBackCheckBox.isChecked():
+                self.forward, self.backward = twoBody.forward_backward(self.time, init,
+                                                                       int(self.inputStep.text()))
+                self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
+                self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
+                self.fwbwOutputLabel.setText('Error on x :\n' + str(round(self.err_x, 2)) + ' km\n\n' +
+                                             'Error on y :\n' + str(round(self.err_y, 2)) + ' km')
+                self.results = self.forward
+            else:
+                self.results = twoBody.RK4(self.time, init, int(self.inputStep.text()))
             self.PlotTrajectory()
 
             self.progressBar.setValue(100)
@@ -519,11 +527,13 @@ class Ui_MainWindow(object):
         self.orbitVar_canvas.axes3.cla()
 
         self.orbitVar_canvas.axes1.plot(time, a)
-        self.orbitVar_canvas.axes1.legend('a')
+        self.orbitVar_canvas.axes1.set_ylabel('SMA (au)', color='white')
         self.orbitVar_canvas.axes2.plot(time, e)
-        self.orbitVar_canvas.axes2.legend('e')
+        self.orbitVar_canvas.axes2.set_ylabel('Ecc', color='white')
+        self.orbitVar_canvas.axes2.yaxis.set_label_coords(1.07, 0.5)
         self.orbitVar_canvas.axes3.plot(time, i)
-        self.orbitVar_canvas.axes3.legend('i')
+        self.orbitVar_canvas.axes3.set_ylabel('Inc (deg)', color='white')
+        self.orbitVar_canvas.axes3.yaxis.set_label_coords(1.07, 0.5)
 
         self.orbitVar_canvas.axes1.tick_params(colors='white')
         self.orbitVar_canvas.axes1.patch.set_facecolor(plot_face_color)
@@ -641,6 +651,7 @@ class Asteroid(planet):
 
 
 class twoBody():  # Only the Sun exerts it's influence on the body.
+
     @classmethod
     def func(cls, t, y):  # using the state space representation of the equation of motion
         y0 = y[3]  # velocity on x
@@ -658,6 +669,7 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
         results = []
         yin = initial_conditions
         results.append(yin)  # set the first value to the initial conditions
+        progress = ui.progressBar.value()
         for t in time_vector[1:]:
             k1 = cls.func(t, yin)
             k2 = cls.func(t + h / 2, yin + h / 2 * k1)
@@ -665,18 +677,25 @@ class twoBody():  # Only the Sun exerts it's influence on the body.
             k4 = cls.func(t + h, yin + h * k3)
             yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
             results.append(yin)  # each value calculated for given t is added to the list
+            ui.progressBar.setValue((90 - progress) * t / len(time_vector))
         return np.array(results)
 
     @classmethod
     def forward_backward(cls, time_vector, initial_conditions, h):
         # allows for error computation. we just need to compute the difference at the starting point
+
         y_forward = cls.RK4(time_vector, initial_conditions, h)  # call RK4 in forward movement
+
+        ui.progressBar.setValue(50)
+
         new_y0 = y_forward[-1]  # new initial conditions
         y_backward = cls.RK4(np.flip(time_vector), new_y0, -h)  # call RK4 backwards
+
         return y_forward, y_backward
 
 
 class threeBody():
+
     @classmethod
     def func(cls, t, y, planet):
         y0 = y[3]  # velocity on x
@@ -707,24 +726,28 @@ class threeBody():
         results = []
         yin = initial_conditions
         results.append(yin)  # set the first value to the initial conditions
-        for i in range(1, len(time_vector[1:])):
-            k1 = cls.func(time_vector[i], yin, planet)
-            k2 = cls.func(time_vector[i] + h / 2, yin + h / 2 * k1, planet)
-            k3 = cls.func(time_vector[i] + h / 2, yin + h / 2 * k2, planet)
-            k4 = cls.func(time_vector[i] + h, yin + h * k3, planet)
+        progress = ui.progressBar.value()
+        for t in time_vector[1:]:
+            k1 = cls.func(t, yin, planet)
+            k2 = cls.func(t + h / 2, yin + h / 2 * k1, planet)
+            k3 = cls.func(t + h / 2, yin + h / 2 * k2, planet)
+            k4 = cls.func(t + h, yin + h * k3, planet)
             yin = yin + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
             # each value calculated for given t is added to the list
             results.append(yin)
+            ui.progressBar.setValue((90 - progress) * t / len(time_vector))
         return np.array(results)
 
     @classmethod
     def forward_backward(cls, time_vector, initial_conditions, h, planet):
         # allows for error computation. we just need to compute the difference at the starting point
         # call RK4 in forward movement
+
         y_forward = cls.RK4(time_vector, initial_conditions, h, planet)
+        ui.progressBar.setValue(50)
         new_y0 = y_forward[-1]  # new initial conditions
-        y_backward = cls.RK4(np.flip(time_vector), new_y0, -
-                             h, planet)  # call RK4 backwards
+        y_backward = cls.RK4(np.flip(time_vector), new_y0, - h, planet)  # call RK4 backwards
+
         return y_forward, y_backward
 
 
@@ -751,7 +774,8 @@ def vector2orbitalparam(r, rdot):
 
     k_vector = np.cross(r, rdot) / (np.linalg.norm(r) * np.linalg.norm(rdot))
 
-    inclination = np.arccos(np.around(k_vector[2], 4))  # np.around rounds the value of k_vectors so it stays in [-1,1]
+    # np.around rounds the value of k_vectors so it stays in [-1,1]
+    inclination = np.degrees(np.arccos(np.around(k_vector[2], 4)))
 
     return semi_major_axis, eccentricity, inclination
 
