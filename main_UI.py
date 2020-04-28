@@ -9,38 +9,39 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPalette
 import numpy as np
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas,
-NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
+    NavigationToolbar2QT as NavigationToolbar
 
 
 class MplCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        fig.set_facecolor(plot_background_color)
-        fig.tight_layout()
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.fig.set_facecolor(plot_background_color)
+        self.axes = self.fig.add_subplot(111)
         self.axes.tick_params(colors='white')
         self.axes.patch.set_facecolor(plot_face_color)
-        super(MplCanvas, self).__init__(fig)
+        self.fig.tight_layout()
+
+        super(MplCanvas, self).__init__(self.fig)
 
 
 class MplCanvas3subs(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        fig.set_facecolor(plot_background_color)
-        fig.tight_layout()
-        self.axes1 = fig.add_subplot(311)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.fig.set_facecolor(plot_background_color)
+        self.axes1 = self.fig.add_subplot(311)
         self.axes1.tick_params(colors='white')
         self.axes1.patch.set_facecolor(plot_face_color)
-        self.axes2 = fig.add_subplot(312)
+        self.axes2 = self.fig.add_subplot(312)
         self.axes2.tick_params(colors='white')
         self.axes2.patch.set_facecolor(plot_face_color)
-        self.axes3 = fig.add_subplot(313)
+        self.axes3 = self.fig.add_subplot(313)
         self.axes3.tick_params(colors='white')
         self.axes3.patch.set_facecolor(plot_face_color)
-        super(MplCanvas3subs, self).__init__(fig)
+        self.fig.tight_layout()
+        super(MplCanvas3subs, self).__init__(self.fig)
 
 
 class Ui_MainWindow(object):
@@ -509,6 +510,7 @@ class Ui_MainWindow(object):
         self.trajectory_canvas.axes.legend()
         self.trajectory_canvas.axes.axis('equal')
 
+        self.trajectory_canvas.fig.tight_layout()
         self.trajectory_canvas.draw()
 
     def PlotOrbitVar(self, a, e, i, time):
@@ -523,13 +525,14 @@ class Ui_MainWindow(object):
         self.orbitVar_canvas.axes3.plot(time, i)
         self.orbitVar_canvas.axes3.legend('i')
 
-        self.axes1.tick_params(colors='white')
-        self.axes1.patch.set_facecolor(plot_face_color)
-        self.axes2.tick_params(colors='white')
-        self.axes2.patch.set_facecolor(plot_face_color)
-        self.axes3.tick_params(colors='white')
-        self.axes3.patch.set_facecolor(plot_face_color)
+        self.orbitVar_canvas.axes1.tick_params(colors='white')
+        self.orbitVar_canvas.axes1.patch.set_facecolor(plot_face_color)
+        self.orbitVar_canvas.axes2.tick_params(colors='white')
+        self.orbitVar_canvas.axes2.patch.set_facecolor(plot_face_color)
+        self.orbitVar_canvas.axes3.tick_params(colors='white')
+        self.orbitVar_canvas.axes3.patch.set_facecolor(plot_face_color)
 
+        self.orbitVar_canvas.fig.tight_layout()
         self.orbitVar_canvas.draw()
 
 
