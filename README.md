@@ -57,3 +57,4 @@ If you want to re-run the simulation with other parameters, simply change the de
 - more integrators
 - input proofing and displaying errors instead of crashing the program
 - Logging
+- Saving the results to a file for use in Excel for example
