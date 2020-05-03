@@ -1,28 +1,44 @@
 # Asteroid-population
 
-School project as part of the CIRI at IPSA. 
+## Overview
 
-The objective is to modelize the trajectory of an asteroid in the solar system. At the term of the project, we should be able to model a specific asteroid using all its orbital parameters, subjected to perturbations from other bodies such as :
+This project is part of my CIRI (Cours d’Initiation à la Recherche et à l’Innovation) at IPSA, Paris.
 
-- the Sun
-- Jupiter
-- all other planets of the solar system.
+The objective is to model the trajectory of an asteroid in the solar system subject to perturbations from Jupiter. We then study the variations of the orbital parameters such as the semi-major axis, the eccentricity and the inclination after a few centuries. This allows us to visualize the resonances.
 
-We can study the variations of semi-major axis, eccentricity and inclination over a few thousand days.
-The current integrator is RungeKutta4.
+We went further by adding all the other planets  in the solar system, which we can choose from using a Graphical User Interface. The orbital parameters of the asteroid are user-defined, as well as the integration parameters.
 
-[Work in progress...]
+## How to use
 
-2 python files are available :
+### Running the executable
 
-- `main_GUI.py` for the interface (PyQt5 is needed)
-- `asteroid_trajectory.py` is the basic program, with no interface
+Simply double click on the file `.exe` file.
+
+### Running the python file
+
+Run the file `main_GUI.py`. This requires PyQt5, Numpy and Matplotlib, so make sure those modules are installed. If not, you can do so by using the command `pip install[module_name]` in your terminal.
+
+### Interface
+
+<img src="screen.jpg" style="zoom:75%;" />
+
+On the top left corner, choose the planets that will apply perturbations on your asteroid.
+
+In the `Integration parameters` box, type the number of days you want your simulation to run. Enter the step you want. A smaller step will be more accurate, but will take a longer time.
+
+Choose the integration method you would like to use (Currently, only Runge-Kutta4, more to come…)
+
+Check the box if you want a forward-backward integration. It outputs the error due to the integration step after running. If you want a smaller error, reduce the step and rerun the simulation.
+
+In the `asteroid parameters box`,  enter the mass of your asteroid (in solar masses, so zero, that’s dumb sorry) and the semi-major axis. If your asteroid is on a circular orbit, leave the box checked, otherwise, uncheck it and choose between the two tabs that appeared on the right. The `Pos/Vel` tab allows you to enter the position and velocity of the asteroid in xyz coordinates (buggy, don’t use !), whereas the `orbit param` tab allows you to enter the orbital parameters of your asteroid (Eccentricity, INClination, Longitude of Ascending Node, Argument Of Periapsis, Mean anomaly, and epoch). Values must be entered in DEGREES. Leave epoch = 0 for J2000.
+
+Finally, press `START` to launch the simulation. The graphics will appear, and you can save them using the toolbar on top of them.
+
+If you want to re-run the simulation with other parameters, simply change the desired parameters and click `START` again.
 
 ## Currently implemented features
 
-- 2 body problem (only the sun and the asteroid)
-- 3 body problem 
-  - Only Jupiter available for now
+- Multi-body problem, from only the Sun and the asteroid to every planet and the asteroid
 - Planet’s trajectory is computed using an accurate model
 - Runge-Kutta 4 integrator
 - Forward-Backward error estimation
@@ -30,22 +46,14 @@ The current integrator is RungeKutta4.
   - Circular orbit
   - User defined orbit with parameters
   - User defined orbit with position and velocity
-- Plot of the trajectory of the bodies
-- plot of the orbital parameters changes due to perturbation (only in 3 body problem)
+- Plot of the trajectory of every selected body
+- plot of the orbital parameters changes due to perturbation (only if a planet has been selected)
 
-### Current state of the UI :
 
-![](screen.jpg)
 
 ## TODO
 
-- N-body problem
-- Other planets
 - Option to choose from simplified or accurate planet trajectory model
 - more integrators
 - input proofing and displaying errors instead of crashing the program
-
-## Dependencies 
-- Numpy
-- Matplotlib
-- PyQt5 (only for the GUI)
+- Logging
