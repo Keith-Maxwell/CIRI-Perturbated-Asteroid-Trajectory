@@ -61,29 +61,36 @@ class Ui_MainWindow(object):
         self.groupIntegrationParam.setGeometry(QtCore.QRect(210, 10, 241, 241))
         self.groupIntegrationParam.setObjectName("groupIntegrationParam")
 
-        self.inputFinalTime = QtWidgets.QLineEdit(self.groupIntegrationParam)
-        self.inputFinalTime.setGeometry(QtCore.QRect(120, 40, 113, 22))
-        self.inputFinalTime.setObjectName("inputFinalTime")
+        self.inputInitTime = QtWidgets.QLineEdit(self.groupIntegrationParam)
+        self.inputInitTime.setGeometry(QtCore.QRect(120, 40, 60, 22))
+        self.inputInitTime.setObjectName("inputInitTime")
+        self.label_start_time = QtWidgets.QLabel(self.groupIntegrationParam)
+        self.label_start_time.setGeometry(QtCore.QRect(10, 40, 111, 16))
+        self.label_start_time.setObjectName("label_init_time")
+        self.days_label = QtWidgets.QLabel(self.groupIntegrationParam)
+        self.days_label.setGeometry(QtCore.QRect(185, 40, 60, 16))
+        self.days_label.setObjectName("label_init_time")
 
+        self.inputFinalTime = QtWidgets.QLineEdit(self.groupIntegrationParam)
+        self.inputFinalTime.setGeometry(QtCore.QRect(120, 70, 113, 22))
+        self.inputFinalTime.setObjectName("inputFinalTime")
         self.label_2 = QtWidgets.QLabel(self.groupIntegrationParam)
-        self.label_2.setGeometry(QtCore.QRect(10, 40, 111, 16))
+        self.label_2.setGeometry(QtCore.QRect(10, 70, 111, 16))
         self.label_2.setObjectName("label_2")
 
         self.inputStep = QtWidgets.QLineEdit(self.groupIntegrationParam)
-        self.inputStep.setGeometry(QtCore.QRect(120, 70, 113, 22))
+        self.inputStep.setGeometry(QtCore.QRect(120, 100, 113, 22))
         self.inputStep.setObjectName("inputStep")
-
         self.label_4 = QtWidgets.QLabel(self.groupIntegrationParam)
-        self.label_4.setGeometry(QtCore.QRect(10, 70, 111, 16))
+        self.label_4.setGeometry(QtCore.QRect(10, 100, 111, 16))
         self.label_4.setObjectName("label_4")
 
         self.methodBox = QtWidgets.QComboBox(self.groupIntegrationParam)
-        self.methodBox.setGeometry(QtCore.QRect(20, 110, 211, 22))
+        self.methodBox.setGeometry(QtCore.QRect(20, 140, 211, 22))
         self.methodBox.setObjectName("methodBox")
         self.methodBox.addItem("")
-
         self.forwBackCheckBox = QtWidgets.QCheckBox(self.groupIntegrationParam)
-        self.forwBackCheckBox.setGeometry(QtCore.QRect(20, 150, 211, 20))
+        self.forwBackCheckBox.setGeometry(QtCore.QRect(20, 180, 211, 20))
         self.forwBackCheckBox.setObjectName("forwBackCheckBox")
 
         # ------------Plots------------
@@ -436,6 +443,10 @@ class Ui_MainWindow(object):
         self.StartButton.setText(_translate("MainWindow", "Start !"))
         self.warningLabel.setText(_translate("MainWindow", " "))  # TODO : connect to error output
         self.fwbwOutputLabel.setText(_translate("MainWindow", " "))
+        self.inputInitTime.setText(_translate("MainWindow", "0"))
+        self.label_start_time.setText(_translate("MainWindow", "Start : J2000 + "))
+        self.days_label.setText(_translate("MainWindow", "days"))
+        self.inputAsteroidMass.setText(_translate("MainWindow", "0"))
 
     def proof_inputs(self):  # TODO: proofing of all inputs
         pass
@@ -467,8 +478,9 @@ class Ui_MainWindow(object):
         ast = Asteroid('test')
         init = ast.get_init_state()
 
-        self.time = np.arange(0, int(self.inputFinalTime.text()) + int(self.inputStep.text()),
-                              int(self.inputStep.text()))  # creation of the list containing each value of time
+        # creation of the list containing each value of time
+        self.time = np.arange(0 + int(self.inputInitTime.text()), int(self.inputFinalTime.text())
+                              + int(self.inputStep.text()) + int(self.inputInitTime.text()), int(self.inputStep.text()))
 
         self.progressBar.setValue(10)
 
@@ -547,7 +559,7 @@ class Ui_MainWindow(object):
 
 
 class planet(object):
-    def __init__(self, name, m, a, i, e, Omega, omega, M0, t0=0):
+    def __init__(self, name, m, a, i, e, Omega, omega, M0):
         self.name = name
         self.m = m
         self.a = a
@@ -556,7 +568,6 @@ class planet(object):
         self.Omega = np.radians(Omega)
         self.omega = np.radians(omega)
         self.M0 = np.radians(M0)
-        self.t0 = t0
         self.T = np.sqrt((4 * np.pi ** 2) /
                          (G * (m_sun + self.m)) * self.a ** 3)
         self.w = 2 * np.pi / self.T
@@ -573,8 +584,8 @@ class planet(object):
 
     def completeOrbitalElem2Vector(self, t):
         self.n = k / np.sqrt(self.a ** 3)
-        self.M = self.M0 + self.n * (t - self.t0)
-        self.E = self.newton(self.keplerEquation, self.M0)
+        self.M = self.M0 + self.n * (t)  # We start at t0 = 0 = J2000 so no correction
+        self.E = self.newton(self.keplerEquation, self.M)
         self.bigX = self.a * (np.cos(self.E) - self.e)
         self.bigY = self.a * np.sqrt(1 - self.e ** 2) * np.sin(self.E)
         self.bigXdot = - self.n * self.a ** 2 / \
@@ -751,19 +762,6 @@ def orbital_parameters_list(r, rdot):
 
 
 if __name__ == "__main__":
-    m_sun = 1  # mass of the Sun
-    G = 0.000295824  # gravitation constant expressed in our own system of units
-    k = np.sqrt(G)
-    mu = G * m_sun
-    mercury = planet('mercury', m_sun / 6023622.047, 0.38709893, 7.00487,  0.20563069, 48.33167, 77.45645, 126.464)
-    venus = planet('venus', m_sun / 408544.7263,  0.72333199, 3.39471, 0.00677323, 76.68069, 131.53298, -26.23394)
-    earth = planet('earth', m_sun / 332965.0462, 1, 0.00005, 0.01671022, 348.73936, 102.94719, -351.2222)
-    mars = planet('mars', m_sun / 3098854.873, 1.52366231,  1.85061,  0.09341233, 49.57854, 336.04084, -30.16606)
-    jupiter = planet('jupiter', m_sun / 1047.348625, 5.202603, 1.303, 0.048498, 100.46, -86.13, 20.0)
-    saturn = planet('saturn', m_sun / 3498.926925, 9.5370703, 2.484, 0.054151, 113.72, 92.43, -156.2)
-    uranus = planet('uranus', m_sun / 22906.30182, 19.19126393, 0.76986, 0.04716771, 74.22988, 170.96424, 68.0392)
-    neptune = planet('neptune', m_sun / 19418.13922, 30.06896348, 1.76917, 0.00858587,  131.72169, 44.97135, 128.19)
-
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
@@ -792,4 +790,18 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+
+    m_sun = 1  # mass of the Sun
+    G = 0.000295824  # gravitation constant expressed in our own system of units
+    k = np.sqrt(G)
+    mu = G * m_sun
+    mercury = planet('mercury', m_sun / 6023622.047, 0.38709893, 7.00487, 0.20563069, 48.33167, 77.45645, 126.464)
+    venus = planet('venus', m_sun / 408544.7263,  0.72333199, 3.39471, 0.00677323, 76.68069, 131.53298, -26.23394)
+    earth = planet('earth', m_sun / 332965.0462, 1, 0.00005, 0.01671022, 348.73936, 102.94719, -351.2222)
+    mars = planet('mars', m_sun / 3098854.873, 1.52366231,  1.85061,  0.09341233, 49.57854, 336.04084, -30.16606)
+    jupiter = planet('jupiter', m_sun / 1047.348625, 5.202603, 1.303, 0.048498, 100.46, -86.13, 20.0)
+    saturn = planet('saturn', m_sun / 3498.926925, 9.5370703, 2.484, 0.054151, 113.72, 92.43, -156.2)
+    uranus = planet('uranus', m_sun / 22906.30182, 19.19126393, 0.76986, 0.04716771, 74.22988, 170.96424, 68.0392)
+    neptune = planet('neptune', m_sun / 19418.13922, 30.06896348, 1.76917, 0.00858587,  131.72169, 44.97135, 128.19)
+
     sys.exit(app.exec_())
