@@ -479,21 +479,21 @@ class Ui_MainWindow(object):
         init = ast.get_init_state()
 
         # creation of the list containing each value of time
-        self.time = np.arange(0 + int(self.inputInitTime.text()), int(self.inputFinalTime.text())
-                              + int(self.inputStep.text()) + int(self.inputInitTime.text()), int(self.inputStep.text()))
+        self.time = np.arange(0 + float(self.inputInitTime.text()), float(self.inputFinalTime.text())
+                              + float(self.inputStep.text()) + float(self.inputInitTime.text()), float(self.inputStep.text()))
 
         self.progressBar.setValue(10)
 
         if self.forwBackCheckBox.isChecked():
             self.forward, self.backward = MultiBody.forward_backward(self.time, init,
-                                                                     int(self.inputStep.text()), planets)
+                                                                     float(self.inputStep.text()), planets)
             self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
             self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
             self.fwbwOutputLabel.setText('Error on x :\n' + str(round(self.err_x, 2)) + ' km\n\n' +
                                          'Error on y :\n' + str(round(self.err_y, 2)) + ' km')
             self.results = self.forward
         else:
-            self.results = MultiBody.RK4(self.time, init, int(self.inputStep.text()), planets)
+            self.results = MultiBody.RK4(self.time, init, float(self.inputStep.text()), planets)
 
         self.PlotTrajectory(planets)  # plot of the results + planets
 
@@ -510,7 +510,16 @@ class Ui_MainWindow(object):
         else:
             self.tabWidget.show()
 
+    def shrink(self, list_):
+        if len(list_) >= 1000:  # reducing the number of points to plot
+            list_ = list_[::10]
+        elif len(list_) >= 10000:
+            list_ = list_[::100]
+        return list_
+
     def PlotTrajectory(self, planets=None):
+        self.results = self.shrink(self.results)
+
         self.trajectory_canvas.axes.cla()
         # Plot of the Sun for reference
         self.trajectory_canvas.axes.plot(0, 0, 'o', color='yellow', markersize='10',
@@ -534,6 +543,8 @@ class Ui_MainWindow(object):
         self.trajectory_canvas.draw()
 
     def PlotOrbitVar(self, a, e, i, time):
+        time = self.shrink(time)
+
         self.orbitVar_canvas.axes1.cla()
         self.orbitVar_canvas.axes2.cla()
         self.orbitVar_canvas.axes3.cla()
