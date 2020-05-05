@@ -4,6 +4,7 @@
 #
 # Created by: PyQt5 UI code generator 5.13.0
 
+# TODO: comment the whole code
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPalette
@@ -11,6 +12,7 @@ import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
+from mpl_toolkits import mplot3d
 
 
 class MplCanvas(FigureCanvas):
@@ -18,7 +20,7 @@ class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.fig.set_facecolor(plot_background_color)
-        self.axes = self.fig.add_subplot(111)
+        self.axes = self.fig.add_subplot(111, projection='3d')
         self.axes.tick_params(colors='white')
         self.axes.patch.set_facecolor(plot_face_color)
         self.fig.tight_layout()
@@ -479,8 +481,10 @@ class Ui_MainWindow(object):
         init = ast.get_init_state()
 
         # creation of the list containing each value of time
-        self.time = np.arange(0 + float(self.inputInitTime.text()), float(self.inputFinalTime.text())
-                              + float(self.inputStep.text()) + float(self.inputInitTime.text()), float(self.inputStep.text()))
+        self.time = np.arange(0 + float(self.inputInitTime.text()),
+                              float(self.inputFinalTime.text()) + float(self.inputStep.text()) +
+                              float(self.inputInitTime.text()),
+                              float(self.inputStep.text()))
 
         self.progressBar.setValue(10)
 
@@ -511,7 +515,8 @@ class Ui_MainWindow(object):
             self.tabWidget.show()
 
     def shrink(self, list_):
-        if len(list_) >= 1000:  # reducing the number of points to plot
+        # reducing the number of elements in the list
+        if len(list_) >= 1000:
             list_ = list_[::10]
         elif len(list_) >= 10000:
             list_ = list_[::100]
@@ -522,22 +527,24 @@ class Ui_MainWindow(object):
 
         self.trajectory_canvas.axes.cla()
         # Plot of the Sun for reference
-        self.trajectory_canvas.axes.plot(0, 0, 'o', color='yellow', markersize='10',
-                                         label='Sun')
+        self.trajectory_canvas.axes.plot([0], [0], [0], 'o', color='yellow', markersize='10', label='Sun')
         # plot of the asteroid
         self.trajectory_canvas.axes.plot(self.results[:, 0],
                                          self.results[:, 1],
+                                         self.results[:, 2],
                                          'o', color='white', markersize=1, label='Asteroid')
         # plot of each selected planet
         for planet in planets:
             self.trajectory_canvas.axes.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
                                              planet.orbitalparam2vectorList(self.time)[:, 1],
+                                             planet.orbitalparam2vectorList(self.time)[:, 2],
                                              'o', markersize=1, label=str(planet.name))
 
         self.trajectory_canvas.axes.tick_params(colors='white')
         self.trajectory_canvas.axes.patch.set_facecolor(plot_face_color)
         self.trajectory_canvas.axes.legend()
-        self.trajectory_canvas.axes.axis('equal')
+        self.trajectory_canvas.axes.set_aspect('equal')
+        set_axes_equal(self.trajectory_canvas.axes)
 
         self.trajectory_canvas.fig.tight_layout()
         self.trajectory_canvas.draw()
@@ -770,6 +777,35 @@ def orbital_parameters_list(r, rdot):
         e_list.append(e)
         i_list.append(i)
     return a_list, e_list, i_list
+
+
+def set_axes_equal(ax):
+    '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    cubes as cubes, etc..  This is one possible solution to Matplotlib's
+    ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
+
+    Input
+      ax: a matplotlib axis, e.g., as output from plt.gca().
+    '''
+
+    x_limits = ax.get_xlim3d()
+    y_limits = ax.get_ylim3d()
+    z_limits = ax.get_zlim3d()
+
+    x_range = abs(x_limits[1] - x_limits[0])
+    x_middle = np.mean(x_limits)
+    y_range = abs(y_limits[1] - y_limits[0])
+    y_middle = np.mean(y_limits)
+    z_range = abs(z_limits[1] - z_limits[0])
+    z_middle = np.mean(z_limits)
+
+    # The plot bounding box is a sphere in the sense of the infinity
+    # norm, hence I call half the max range the plot radius.
+    plot_radius = 0.5*max([x_range, y_range, z_range])
+
+    ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+    ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+    ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
 if __name__ == "__main__":
