@@ -496,8 +496,9 @@ class Ui_MainWindow(object):
                                                                      float(self.inputStep.text()), planets)
             self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
             self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
-            self.fwbwOutputLabel.setText('Error on x :\n' + str(round(self.err_x, 2)) + ' km\n\n' +
-                                         'Error on y :\n' + str(round(self.err_y, 2)) + ' km')
+            self.err_z = 150e6 * abs(self.forward[0][2] - self.backward[-1][2]) / 2
+            self.fwbwOutputLabel.setText(
+                f"Error on x: \n{str(round(self.err_x, 2))} km\n\nError on y: \n{str(round(self.err_y, 2))} km\n\nError on z: \n{str(round(self.err_z, 2))} km")
             self.results = self.forward
         else:
             self.results = MultiBody.RK4(self.time, init, float(self.inputStep.text()), planets)
@@ -538,9 +539,10 @@ class Ui_MainWindow(object):
                                          'o', color='white', markersize=1, label='Asteroid')
         # plot of each selected planet
         for planet in planets:
-            self.trajectory_canvas.axes.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
-                                             planet.orbitalparam2vectorList(self.time)[:, 1],
-                                             planet.orbitalparam2vectorList(self.time)[:, 2],
+            xyz = planet.orbitalparam2vectorList(self.time)
+            self.trajectory_canvas.axes.plot(xyz[:, 0],
+                                             xyz[:, 1],
+                                             xyz[:, 2],
                                              'o', markersize=1, label=str(planet.name))
 
         self.trajectory_canvas.axes.tick_params(colors='white')
@@ -742,8 +744,8 @@ class MultiBody():
 
 def extract_vectors(results):
     # takes the list of outputs from RK4 and extracts a list of position and velocity vectors
-    r_list = []
-    r_dot_list = []
+    r_list = [[results[i][j] for j in range(0, 3)] for i in range(len(results))]
+    r_dot_list = [[results[i][j + 3] for j in range(0, 3)] for i in range(len(results))]
     for i in range(len(results)):
         r = []
         r_dot = []
