@@ -4,6 +4,7 @@
 #
 # Created by: PyQt5 UI code generator 5.13.0
 
+# TODO: comment the whole code
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPalette
@@ -11,6 +12,7 @@ import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
+from mpl_toolkits import mplot3d
 
 
 class MplCanvas(FigureCanvas):
@@ -18,7 +20,7 @@ class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.fig.set_facecolor(plot_background_color)
-        self.axes = self.fig.add_subplot(111)
+        self.axes = self.fig.add_subplot(111, projection='3d')
         self.axes.tick_params(colors='white')
         self.axes.patch.set_facecolor(plot_face_color)
         self.fig.tight_layout()
@@ -46,8 +48,9 @@ class MplCanvas3subs(FigureCanvas):
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        WIDTH, HEIGHT = 1120, 900
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1114, 851)
+        MainWindow.resize(WIDTH, HEIGHT)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setAnimated(True)
         MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -95,7 +98,7 @@ class Ui_MainWindow(object):
 
         # ------------Plots------------
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupPlots.setGeometry(QtCore.QRect(15, 320, 1086, 501))
+        self.groupPlots.setGeometry(QtCore.QRect(15, 310, WIDTH - 15, 601))
         self.groupPlots.setAlignment(QtCore.Qt.AlignCenter)
         self.groupPlots.setObjectName("groupPlots")
 
@@ -107,7 +110,7 @@ class Ui_MainWindow(object):
         self.label.setGeometry(QtCore.QRect(650, 10, 501, 21))
         self.label.setObjectName("label")
 
-        self.trajectory_canvas = MplCanvas(self.groupPlots, width=5, height=4, dpi=100)
+        self.trajectory_canvas = MplCanvas(self.groupPlots, width=4, height=4, dpi=100)
         self.toolbar = NavigationToolbar(self.trajectory_canvas, self.groupPlots)
 
         self.plotlayout1 = QtWidgets.QVBoxLayout()
@@ -116,7 +119,7 @@ class Ui_MainWindow(object):
 
         self.plotwidget = QtWidgets.QWidget(self.groupPlots)
         self.plotwidget.setLayout(self.plotlayout1)
-        self.plotwidget.setGeometry(QtCore.QRect(20, 40, 1.33*441, 441))
+        self.plotwidget.setGeometry(QtCore.QRect(10, 30, 541, 541))
 
         self.orbitVar_canvas = MplCanvas3subs(self.groupPlots, width=5, height=4, dpi=100)
         self.toolbar2 = NavigationToolbar(self.orbitVar_canvas, self.groupPlots)
@@ -127,7 +130,7 @@ class Ui_MainWindow(object):
 
         self.plotwidget2 = QtWidgets.QWidget(self.groupPlots)
         self.plotwidget2.setLayout(self.plotlayout2)
-        self.plotwidget2.setGeometry(QtCore.QRect(1.33*441+20, 40, 441, 441))
+        self.plotwidget2.setGeometry(QtCore.QRect(541+20, 40, 520, 520))
 
         # ------------Planets list------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
@@ -289,7 +292,6 @@ class Ui_MainWindow(object):
         self.circularCheckBox.setChecked(True)
         self.circularCheckBox.stateChanged.connect(self.hide_show_InitialCond)
 
-        self.tabWidget.addTab(self.xyzTab, "")
         self.orbitTab = QtWidgets.QWidget()
         self.orbitTab.setObjectName("orbitTab")
 
@@ -350,10 +352,11 @@ class Ui_MainWindow(object):
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.inputLan)
 
         self.tabWidget.addTab(self.orbitTab, "")
+        self.tabWidget.addTab(self.xyzTab, "")
 
         # ------------Progress Bar------------
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(800, 280, 301, 16))
+        self.progressBar.setGeometry(QtCore.QRect(WIDTH/2 + 80, 280, 460, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar.setTextVisible(False)
@@ -362,7 +365,7 @@ class Ui_MainWindow(object):
 
         # ------------Start Button------------
         self.StartButton = QtWidgets.QPushButton(self.centralwidget)
-        self.StartButton.setGeometry(QtCore.QRect(670, 260, 121, 51))
+        self.StartButton.setGeometry(QtCore.QRect(WIDTH/2 - 121/2, 260, 121, 51))
         self.StartButton.setObjectName("StartButton")
 
         self.warningLabel = QtWidgets.QLabel(self.centralwidget)
@@ -395,6 +398,7 @@ class Ui_MainWindow(object):
         # ------------Status bar------------
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
+        self.statusbar.hide()
         MainWindow.setStatusBar(self.statusbar)
 
         # ------------------------------------------------------------------------
@@ -410,7 +414,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Step :"))
         self.methodBox.setItemText(0, _translate("MainWindow", "RungeKutta4"))
         self.forwBackCheckBox.setText(_translate("MainWindow", "Forward-Backward integration"))
-        self.groupPlots.setTitle(_translate("MainWindow", "Plots"))
+        self.groupPlots.setTitle(_translate("MainWindow", ""))
         self.label_3.setText(_translate("MainWindow", "Trajectory of the asteroid"))
         self.label.setText(_translate("MainWindow", "Variations of the orbital parameters"))
         self.groupPerturbPlanets.setTitle(_translate("MainWindow", "Include perturbations from"))
@@ -479,8 +483,10 @@ class Ui_MainWindow(object):
         init = ast.get_init_state()
 
         # creation of the list containing each value of time
-        self.time = np.arange(0 + float(self.inputInitTime.text()), float(self.inputFinalTime.text())
-                              + float(self.inputStep.text()) + float(self.inputInitTime.text()), float(self.inputStep.text()))
+        self.time = np.arange(0 + float(self.inputInitTime.text()),
+                              float(self.inputFinalTime.text()) + float(self.inputStep.text()) +
+                              float(self.inputInitTime.text()),
+                              float(self.inputStep.text()))
 
         self.progressBar.setValue(10)
 
@@ -511,7 +517,8 @@ class Ui_MainWindow(object):
             self.tabWidget.show()
 
     def shrink(self, list_):
-        if len(list_) >= 1000:  # reducing the number of points to plot
+        # reducing the number of elements in the list
+        if len(list_) >= 1000:
             list_ = list_[::10]
         elif len(list_) >= 10000:
             list_ = list_[::100]
@@ -522,22 +529,25 @@ class Ui_MainWindow(object):
 
         self.trajectory_canvas.axes.cla()
         # Plot of the Sun for reference
-        self.trajectory_canvas.axes.plot(0, 0, 'o', color='yellow', markersize='10',
-                                         label='Sun')
+        self.trajectory_canvas.axes.plot([0], [0], [0], 'o', color='yellow', markersize='10', label='Sun')
         # plot of the asteroid
         self.trajectory_canvas.axes.plot(self.results[:, 0],
                                          self.results[:, 1],
+                                         self.results[:, 2],
                                          'o', color='white', markersize=1, label='Asteroid')
         # plot of each selected planet
         for planet in planets:
             self.trajectory_canvas.axes.plot(planet.orbitalparam2vectorList(self.time)[:, 0],
                                              planet.orbitalparam2vectorList(self.time)[:, 1],
+                                             planet.orbitalparam2vectorList(self.time)[:, 2],
                                              'o', markersize=1, label=str(planet.name))
 
         self.trajectory_canvas.axes.tick_params(colors='white')
         self.trajectory_canvas.axes.patch.set_facecolor(plot_face_color)
         self.trajectory_canvas.axes.legend()
-        self.trajectory_canvas.axes.axis('equal')
+        self.trajectory_canvas.axes.set_aspect('equal')
+        set_axes_equal(self.trajectory_canvas.axes)
+        self.trajectory_canvas.axes.mouse_init(rotate_btn=1, zoom_btn=3)
 
         self.trajectory_canvas.fig.tight_layout()
         self.trajectory_canvas.draw()
@@ -657,7 +667,7 @@ class Asteroid(planet):
                                         0, k / np.sqrt(self.a), 0])
             return self.init_state
         else:  # User defined initial parameters
-            if ui.tabWidget.currentIndex() == 0:  # Defined by position and velocity #FIXME
+            if ui.tabWidget.currentIndex() == 1:  # Defined by position and velocity #FIXME
                 self.init_state = np.array(
                     [float(ui.inputPosX.text()), float(ui.inputPosY.text()), float(ui.inputPosZ.text()),
                      float(ui.inputVelX.text()), float(ui.inputVelY.text()), float(ui.inputVelZ.text())])
@@ -770,6 +780,35 @@ def orbital_parameters_list(r, rdot):
         e_list.append(e)
         i_list.append(i)
     return a_list, e_list, i_list
+
+
+def set_axes_equal(ax):
+    '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    cubes as cubes, etc..  This is one possible solution to Matplotlib's
+    ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
+
+    Input
+      ax: a matplotlib axis, e.g., as output from plt.gca().
+    '''
+
+    x_limits = ax.get_xlim3d()
+    y_limits = ax.get_ylim3d()
+    z_limits = ax.get_zlim3d()
+
+    x_range = abs(x_limits[1] - x_limits[0])
+    x_middle = np.mean(x_limits)
+    y_range = abs(y_limits[1] - y_limits[0])
+    y_middle = np.mean(y_limits)
+    z_range = abs(z_limits[1] - z_limits[0])
+    z_middle = np.mean(z_limits)
+
+    # The plot bounding box is a sphere in the sense of the infinity
+    # norm, hence I call half the max range the plot radius.
+    plot_radius = 0.5*max([x_range, y_range, z_range])
+
+    ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+    ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+    ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
 if __name__ == "__main__":
