@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UI_v2.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.0
+# Author : Max Perraudin
+# Contributors : Marie Dupont, Paul Sole
+
+# Created with: PyQt5 UI code generator 5.13.0
 
 # TODO: comment the whole code
 

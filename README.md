@@ -20,19 +20,21 @@ Run the file `main_GUI.py`. This requires PyQt5, Numpy and Matplotlib, so make s
 
 ### Interface
 
-<img src="screen.jpg" style="zoom:75%;" />
+<img src="screen.png" style="zoom:75%;" />
 
 On the top left corner, choose the planets that will apply perturbations on your asteroid.
 
-In the `Integration parameters` box, type the number of days you want your simulation to run. Enter the step you want. A smaller step will be more accurate, but will take a longer time.
+In the `Integration parameters` box, enter the date at which your simulation will begin. Type the number of days you want your simulation to run. Enter the step you want. A smaller step will be more accurate, but will take a longer time. 
 
 Choose the integration method you would like to use (Currently, only Runge-Kutta4, more to come…)
 
 Check the box if you want a forward-backward integration. It outputs the error due to the integration step after running. If you want a smaller error, reduce the step and rerun the simulation.
 
-In the `asteroid parameters box`,  enter the mass of your asteroid (in solar masses, so zero, that’s dumb sorry) and the semi-major axis. If your asteroid is on a circular orbit, leave the box checked, otherwise, uncheck it and choose between the two tabs that appeared on the right. The `Pos/Vel` tab allows you to enter the position and velocity of the asteroid in xyz coordinates (buggy, don’t use !), whereas the `orbit param` tab allows you to enter the orbital parameters of your asteroid (Eccentricity, INClination, Longitude of Ascending Node, Argument Of Periapsis, Mean anomaly, and epoch). Values must be entered in DEGREES. Leave epoch = 0 for J2000.
+In the `asteroid parameters box`,  enter the mass of your asteroid (in solar masses, so zero, that’s dumb sorry) and the semi-major axis. If your asteroid is on a circular orbit, leave the box checked, otherwise, uncheck it and choose between the two tabs that appeared on the right. The `Pos/Vel` tab allows you to enter the position and velocity of the asteroid in xyz coordinates (bugs, don’t use !), whereas the `orbit param` tab allows you to enter the orbital parameters of your asteroid (Eccentricity, INClination, Longitude of Ascending Node, Argument Of Periapsis, Mean anomaly, and epoch). Values must be entered in DEGREES. Leave epoch = 0 for J2000.
 
 Finally, press `START` to launch the simulation. The graphics will appear, and you can save them using the toolbar on top of them.
+
+Use the **left click** and drag over the the 3d plot to **rotate** it, use **right click** and drag to **zoom**.
 
 If you want to re-run the simulation with other parameters, simply change the desired parameters and click `START` again.
 
@@ -46,13 +48,14 @@ If you want to re-run the simulation with other parameters, simply change the de
   - Circular orbit
   - User defined orbit with parameters
   - User defined orbit with position and velocity
-- Plot of the trajectory of every selected body
-- plot of the orbital parameters changes due to perturbation (only if a planet has been selected)
+- Plot of the trajectory of every selected body in 3d
+- Plot of the orbital parameters changes due to perturbation (only if a planet has been selected)
 
 
 
 ## TODO
 
+- Comment the code
 - Option to choose from simplified or accurate planet trajectory model
 - more integrators
 - input proofing and displaying errors instead of crashing the program
