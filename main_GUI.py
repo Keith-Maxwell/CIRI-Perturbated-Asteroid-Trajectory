@@ -48,8 +48,9 @@ class MplCanvas3subs(FigureCanvas):
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        WIDTH, HEIGHT = 1120, 900
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1114, 851)
+        MainWindow.resize(WIDTH, HEIGHT)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setAnimated(True)
         MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -97,7 +98,7 @@ class Ui_MainWindow(object):
 
         # ------------Plots------------
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupPlots.setGeometry(QtCore.QRect(15, 320, 1086, 501))
+        self.groupPlots.setGeometry(QtCore.QRect(15, 310, WIDTH - 15, 601))
         self.groupPlots.setAlignment(QtCore.Qt.AlignCenter)
         self.groupPlots.setObjectName("groupPlots")
 
@@ -109,7 +110,7 @@ class Ui_MainWindow(object):
         self.label.setGeometry(QtCore.QRect(650, 10, 501, 21))
         self.label.setObjectName("label")
 
-        self.trajectory_canvas = MplCanvas(self.groupPlots, width=5, height=4, dpi=100)
+        self.trajectory_canvas = MplCanvas(self.groupPlots, width=4, height=4, dpi=100)
         self.toolbar = NavigationToolbar(self.trajectory_canvas, self.groupPlots)
 
         self.plotlayout1 = QtWidgets.QVBoxLayout()
@@ -118,7 +119,7 @@ class Ui_MainWindow(object):
 
         self.plotwidget = QtWidgets.QWidget(self.groupPlots)
         self.plotwidget.setLayout(self.plotlayout1)
-        self.plotwidget.setGeometry(QtCore.QRect(20, 40, 1.33*441, 441))
+        self.plotwidget.setGeometry(QtCore.QRect(10, 30, 541, 541))
 
         self.orbitVar_canvas = MplCanvas3subs(self.groupPlots, width=5, height=4, dpi=100)
         self.toolbar2 = NavigationToolbar(self.orbitVar_canvas, self.groupPlots)
@@ -129,7 +130,7 @@ class Ui_MainWindow(object):
 
         self.plotwidget2 = QtWidgets.QWidget(self.groupPlots)
         self.plotwidget2.setLayout(self.plotlayout2)
-        self.plotwidget2.setGeometry(QtCore.QRect(1.33*441+20, 40, 441, 441))
+        self.plotwidget2.setGeometry(QtCore.QRect(541+20, 40, 520, 520))
 
         # ------------Planets list------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
@@ -291,7 +292,6 @@ class Ui_MainWindow(object):
         self.circularCheckBox.setChecked(True)
         self.circularCheckBox.stateChanged.connect(self.hide_show_InitialCond)
 
-        self.tabWidget.addTab(self.xyzTab, "")
         self.orbitTab = QtWidgets.QWidget()
         self.orbitTab.setObjectName("orbitTab")
 
@@ -352,10 +352,11 @@ class Ui_MainWindow(object):
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.inputLan)
 
         self.tabWidget.addTab(self.orbitTab, "")
+        self.tabWidget.addTab(self.xyzTab, "")
 
         # ------------Progress Bar------------
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(800, 280, 301, 16))
+        self.progressBar.setGeometry(QtCore.QRect(WIDTH/2 + 80, 280, 460, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar.setTextVisible(False)
@@ -364,7 +365,7 @@ class Ui_MainWindow(object):
 
         # ------------Start Button------------
         self.StartButton = QtWidgets.QPushButton(self.centralwidget)
-        self.StartButton.setGeometry(QtCore.QRect(670, 260, 121, 51))
+        self.StartButton.setGeometry(QtCore.QRect(WIDTH/2 - 121/2, 260, 121, 51))
         self.StartButton.setObjectName("StartButton")
 
         self.warningLabel = QtWidgets.QLabel(self.centralwidget)
@@ -397,6 +398,7 @@ class Ui_MainWindow(object):
         # ------------Status bar------------
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
+        self.statusbar.hide()
         MainWindow.setStatusBar(self.statusbar)
 
         # ------------------------------------------------------------------------
@@ -412,7 +414,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Step :"))
         self.methodBox.setItemText(0, _translate("MainWindow", "RungeKutta4"))
         self.forwBackCheckBox.setText(_translate("MainWindow", "Forward-Backward integration"))
-        self.groupPlots.setTitle(_translate("MainWindow", "Plots"))
+        self.groupPlots.setTitle(_translate("MainWindow", ""))
         self.label_3.setText(_translate("MainWindow", "Trajectory of the asteroid"))
         self.label.setText(_translate("MainWindow", "Variations of the orbital parameters"))
         self.groupPerturbPlanets.setTitle(_translate("MainWindow", "Include perturbations from"))
@@ -545,6 +547,7 @@ class Ui_MainWindow(object):
         self.trajectory_canvas.axes.legend()
         self.trajectory_canvas.axes.set_aspect('equal')
         set_axes_equal(self.trajectory_canvas.axes)
+        self.trajectory_canvas.axes.mouse_init(rotate_btn=1, zoom_btn=3)
 
         self.trajectory_canvas.fig.tight_layout()
         self.trajectory_canvas.draw()
@@ -664,7 +667,7 @@ class Asteroid(planet):
                                         0, k / np.sqrt(self.a), 0])
             return self.init_state
         else:  # User defined initial parameters
-            if ui.tabWidget.currentIndex() == 0:  # Defined by position and velocity #FIXME
+            if ui.tabWidget.currentIndex() == 1:  # Defined by position and velocity #FIXME
                 self.init_state = np.array(
                     [float(ui.inputPosX.text()), float(ui.inputPosY.text()), float(ui.inputPosZ.text()),
                      float(ui.inputVelX.text()), float(ui.inputVelY.text()), float(ui.inputVelZ.text())])
