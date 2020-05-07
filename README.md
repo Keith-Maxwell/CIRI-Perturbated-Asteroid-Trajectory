@@ -55,9 +55,10 @@ If you want to re-run the simulation with other parameters, simply change the de
 
 ## TODO
 
-- Comment the code
 - Option to choose from simplified or accurate planet trajectory model
 - more integrators
 - input proofing and displaying errors instead of crashing the program
 - Logging
 - Saving the results to a file for use in Excel for example
+- Improve Performance
+- re-write some functions in C++ to improve performance 

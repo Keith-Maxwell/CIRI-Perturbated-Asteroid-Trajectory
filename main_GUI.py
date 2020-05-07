@@ -17,6 +17,8 @@ from mpl_toolkits import mplot3d
 
 
 class MplCanvas(FigureCanvas):
+    ''' Definition of the Class that allows the integration of Matplotlib in the PyQt window
+        This class is used for the left plot, with 3D trajectory'''
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -30,6 +32,8 @@ class MplCanvas(FigureCanvas):
 
 
 class MplCanvas3subs(FigureCanvas):
+    ''' Definition of the Class that allows the integration of Matplotlib in the PyQt window
+        This class is used for the right plot, with 3 subplots'''
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -48,7 +52,12 @@ class MplCanvas3subs(FigureCanvas):
 
 
 class Ui_MainWindow(object):
+    '''Definition of the main window UI and all the functions associated with it'''
+
     def setupUi(self, MainWindow):
+        ''' seting up each widget, label, box, list tab, etc...
+            purely graphic in this definition'''
+
         WIDTH, HEIGHT = 1120, 900
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(WIDTH, HEIGHT)
@@ -97,6 +106,7 @@ class Ui_MainWindow(object):
         self.forwBackCheckBox.setGeometry(QtCore.QRect(20, 180, 211, 20))
         self.forwBackCheckBox.setObjectName("forwBackCheckBox")
 
+        # ------------------------------------------------------------------------
         # ------------Plots------------
         self.groupPlots = QtWidgets.QGroupBox(self.centralwidget)
         self.groupPlots.setGeometry(QtCore.QRect(15, 310, WIDTH - 15, 601))
@@ -133,6 +143,7 @@ class Ui_MainWindow(object):
         self.plotwidget2.setLayout(self.plotlayout2)
         self.plotwidget2.setGeometry(QtCore.QRect(541+20, 40, 520, 520))
 
+        # ------------------------------------------------------------------------
         # ------------Planets list------------
         self.groupPerturbPlanets = QtWidgets.QGroupBox(self.centralwidget)
         self.groupPerturbPlanets.setGeometry(QtCore.QRect(10, 10, 191, 241))
@@ -185,6 +196,7 @@ class Ui_MainWindow(object):
         self.neptuneCheckBox.setObjectName("neptuneCheckBox")
         self.gridLayout.addWidget(self.neptuneCheckBox, 3, 1, 1, 1)
 
+        # ------------------------------------------------------------------------
         # ------------Asteroid parameters------------
         self.groupAsteroidParam = QtWidgets.QGroupBox(self.centralwidget)
         self.groupAsteroidParam.setGeometry(QtCore.QRect(630, 10, 471, 244))
@@ -206,6 +218,14 @@ class Ui_MainWindow(object):
         self.inputAsteroidSMaxis.setGeometry(QtCore.QRect(120, 60, 101, 22))
         self.inputAsteroidSMaxis.setObjectName("inputAsteroidSMaxis")
 
+        self.circularCheckBox = QtWidgets.QCheckBox(self.groupAsteroidParam)
+        self.circularCheckBox.setGeometry(QtCore.QRect(120, 90, 101, 22))
+        self.circularCheckBox.setTristate(False)
+        self.circularCheckBox.setObjectName("circularCheckBox")
+        self.circularCheckBox.setChecked(True)
+        self.circularCheckBox.stateChanged.connect(self.hide_show_InitialCond)
+
+        # ------------- TABs pos/vel ----------------------
         self.tabWidget = QtWidgets.QTabWidget(self.groupAsteroidParam)
         self.tabWidget.setGeometry(QtCore.QRect(250, 10, 211, 228))
         self.tabWidget.setObjectName("tabWidget")
@@ -278,21 +298,7 @@ class Ui_MainWindow(object):
         self.label_6.setGeometry(QtCore.QRect(10, 60, 121, 16))
         self.label_6.setObjectName("label_6")
 
-        self.inputAsteroidMass = QtWidgets.QLineEdit(self.groupAsteroidParam)
-        self.inputAsteroidMass.setGeometry(QtCore.QRect(120, 30, 101, 22))
-        self.inputAsteroidMass.setObjectName("inputAsteroidMass")
-
-        self.inputAsteroidSmAxis = QtWidgets.QLineEdit(self.groupAsteroidParam)
-        self.inputAsteroidSmAxis.setGeometry(QtCore.QRect(120, 60, 101, 22))
-        self.inputAsteroidSmAxis.setObjectName("inputAsteroidSmAxis")
-
-        self.circularCheckBox = QtWidgets.QCheckBox(self.groupAsteroidParam)
-        self.circularCheckBox.setGeometry(QtCore.QRect(120, 90, 101, 22))
-        self.circularCheckBox.setTristate(False)
-        self.circularCheckBox.setObjectName("circularCheckBox")
-        self.circularCheckBox.setChecked(True)
-        self.circularCheckBox.stateChanged.connect(self.hide_show_InitialCond)
-
+        # ------------- TABs orbital param ----------------------
         self.orbitTab = QtWidgets.QWidget()
         self.orbitTab.setObjectName("orbitTab")
 
@@ -324,6 +330,10 @@ class Ui_MainWindow(object):
         self.label_13.setObjectName("label_13")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_13)
 
+        self.inputLan = QtWidgets.QLineEdit(self.widget)
+        self.inputLan.setObjectName("inputLan")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.inputLan)
+
         self.label_15 = QtWidgets.QLabel(self.widget)
         self.label_15.setObjectName("label_15")
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_15)
@@ -340,21 +350,10 @@ class Ui_MainWindow(object):
         self.inputM.setObjectName("inputM")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.inputM)
 
-        self.label_16 = QtWidgets.QLabel(self.widget)
-        self.label_16.setObjectName("label_16")
-        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label_16)
-
-        self.inputEpoch = QtWidgets.QLineEdit(self.widget)
-        self.inputEpoch.setObjectName("inputEpoch")
-        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputEpoch)
-
-        self.inputLan = QtWidgets.QLineEdit(self.widget)
-        self.inputLan.setObjectName("inputLan")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.inputLan)
-
         self.tabWidget.addTab(self.orbitTab, "")
         self.tabWidget.addTab(self.xyzTab, "")
 
+        # ------------------------------------------------------------------------
         # ------------Progress Bar------------
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(WIDTH/2 + 80, 280, 460, 16))
@@ -364,6 +363,7 @@ class Ui_MainWindow(object):
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName("progressBar")
 
+        # ------------------------------------------------------------------------
         # ------------Start Button------------
         self.StartButton = QtWidgets.QPushButton(self.centralwidget)
         self.StartButton.setGeometry(QtCore.QRect(WIDTH/2 - 121/2, 260, 121, 51))
@@ -390,12 +390,14 @@ class Ui_MainWindow(object):
         self.fwbwOutputLabel.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
 
+        # ------------------------------------------------------------------------
         # ------------Menu Bar------------
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1114, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
+        # ------------------------------------------------------------------------
         # ------------Status bar------------
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -408,6 +410,8 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        ''' Assign to each label a text and to each button a function'''
+
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Asteroid Trajectory"))
         self.groupIntegrationParam.setTitle(_translate("MainWindow", "Integration parameters"))
@@ -443,7 +447,6 @@ class Ui_MainWindow(object):
         self.label_13.setText(_translate("MainWindow", "LAN :"))
         self.label_15.setText(_translate("MainWindow", "AOP :"))
         self.label_19.setText(_translate("MainWindow", "M :"))
-        self.label_16.setText(_translate("MainWindow", "Epoch :"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.orbitTab), _translate("MainWindow", "Orbit param"))
         self.StartButton.setText(_translate("MainWindow", "Start !"))
         self.warningLabel.setText(_translate("MainWindow", " "))  # TODO : connect to error output
@@ -457,6 +460,7 @@ class Ui_MainWindow(object):
         pass
 
     def check_planets(self):
+        ''' generates a list of all the planets that are checked '''
         checked_list = []
         if self.mercuryCheckBox.checkState():
             checked_list.append(mercury)
@@ -477,11 +481,17 @@ class Ui_MainWindow(object):
         return checked_list
 
     def Start(self):
+        ''' Execution of the main script, when the START button is pressed
+            generate the asteroid and the planets, create the time vector,
+            integrate the movement of the asteroid, display the errors if
+            needed, plot the trajectory in the 3D plot on the left hand side
+            and the variations of orbital parameters on the right hand side
+            (only if a planet has been selected)'''
         self.progressBar.setValue(0)
 
-        planets = self.check_planets()
-        ast = Asteroid('test')
-        init = ast.get_init_state()
+        planets = self.check_planets()  # get the list of planets
+        ast = Asteroid('test')  # create the instance of Asteroid Class
+        init = ast.get_init_state()  # Get the initial state of the asteroid
 
         # creation of the list containing each value of time
         self.time = np.arange(0 + float(self.inputInitTime.text()),
@@ -491,45 +501,62 @@ class Ui_MainWindow(object):
 
         self.progressBar.setValue(10)
 
-        if self.forwBackCheckBox.isChecked():
+        if self.forwBackCheckBox.isChecked():  # If the user asked for Forward-Backward integration then :
+            # call forward-backward function and store results in two lists
             self.forward, self.backward = MultiBody.forward_backward(self.time, init,
                                                                      float(self.inputStep.text()), planets)
+            # Compute the error between the starting point and the result of the backward integration
             self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
             self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
             self.err_z = 150e6 * abs(self.forward[0][2] - self.backward[-1][2]) / 2
-            self.fwbwOutputLabel.setText(
-                f"Error on x: \n{str(round(self.err_x, 2))} km\n\nError on y: \n{str(round(self.err_y, 2))} km\n\nError on z: \n{str(round(self.err_z, 2))} km")
-            self.results = self.forward
-        else:
+            self.fwbwOutputLabel.setText(f"Error on x: \n{str(round(self.err_x, 2))} km\n\n \
+                                            Error on y: \n{str(round(self.err_y, 2))} km\n\n \
+                                            Error on z: \n{str(round(self.err_z, 2))} km")
+            self.results = self.forward  # Store the results from the forward integration in a dedicated list
+
+        else:  # if the user did not ask for a fw-bw integration, then only compute the results.
             self.results = MultiBody.RK4(self.time, init, float(self.inputStep.text()), planets)
 
         self.PlotTrajectory(planets)  # plot of the results + planets
 
-        if planets != []:
+        if planets != []:  # If there are planets selected, then calculate and plot the orbital parameters
+            # get two separate lists of position and velocity from the results
             self.r_list, self.rdot_list = extract_vectors(self.results)
+            # compute the orbital parameters of the asteroid from its position and velocity
             self.a_list, self.e_list, self.i_list = orbital_parameters_list(self.r_list, self.rdot_list)
+            # Plot the orbital parameters on the right hand side plot, with 3 sub-plots
             self.PlotOrbitVar(self.a_list, self.e_list, self.i_list, self.time)
 
         self.progressBar.setValue(100)
+        # Main task is over ! yaaaay !
 
     def hide_show_InitialCond(self):
+        ''' Hides the inputs of the initial conditions of the asteroid
+            if the circular orbit checkbox is checked'''
         if self.circularCheckBox.checkState():
             self.tabWidget.hide()
         else:
             self.tabWidget.show()
 
     def shrink(self, list_):
-        # reducing the number of elements in the list
+        ''' reducing the number of elements in the list, to have a quicker
+            and less cluttered plot'''
         if len(list_) >= 1000:
-            list_ = list_[::10]
+            list_ = list_[::10]  # keep only every 10th element
         elif len(list_) >= 10000:
-            list_ = list_[::100]
-        return list_
+            list_ = list_[::100]  # keep only every 100th element
+        elif len(list_) >= 100000:
+            list_ = list_[::1000]  # keep only every 1000th element
+        return list_  # returns only 100 values to plot
 
     def PlotTrajectory(self, planets=None):
-        self.results = self.shrink(self.results)
+        ''' Plot the trajectory of the asteroid and other
+            planets from the results of the integration'''
 
-        self.trajectory_canvas.axes.cla()
+        self.results = self.shrink(self.results)  # reduce the size of the results, affects the whole program
+
+        self.trajectory_canvas.axes.cla()  # clear the canvas
+
         # Plot of the Sun for reference
         self.trajectory_canvas.axes.plot([0], [0], [0], 'o', color='yellow', markersize='10', label='Sun')
         # plot of the asteroid
@@ -545,6 +572,7 @@ class Ui_MainWindow(object):
                                              xyz[:, 2],
                                              'o', markersize=1, label=str(planet.name))
 
+        # Visual parameters of the plot
         self.trajectory_canvas.axes.tick_params(colors='white')
         self.trajectory_canvas.axes.patch.set_facecolor(plot_face_color)
         self.trajectory_canvas.axes.legend()
@@ -556,14 +584,20 @@ class Ui_MainWindow(object):
         self.trajectory_canvas.draw()
 
     def PlotOrbitVar(self, a, e, i, time):
-        time = self.shrink(time)
+        ''' Plot of the semi major axis, eccentricity and inclination
+            over time, in 3 subplots on the right hand side of the window'''
 
+        time = self.shrink(time)  # reduce the size of the time vector
+
+        # clear the canvas
         self.orbitVar_canvas.axes1.cla()
         self.orbitVar_canvas.axes2.cla()
         self.orbitVar_canvas.axes3.cla()
 
+        # plot each set of data
         self.orbitVar_canvas.axes1.plot(time, a)
         self.orbitVar_canvas.axes1.set_ylabel('SMA (au)', color='white')
+        self.orbitVar_canvas.axes1.yaxis.set_label_coords(1.07, 0.5)
         self.orbitVar_canvas.axes2.plot(time, e)
         self.orbitVar_canvas.axes2.set_ylabel('Ecc', color='white')
         self.orbitVar_canvas.axes2.yaxis.set_label_coords(1.07, 0.5)
@@ -571,6 +605,7 @@ class Ui_MainWindow(object):
         self.orbitVar_canvas.axes3.set_ylabel('Inc (deg)', color='white')
         self.orbitVar_canvas.axes3.yaxis.set_label_coords(1.07, 0.5)
 
+        # change the color of each subplot
         self.orbitVar_canvas.axes1.tick_params(colors='white')
         self.orbitVar_canvas.axes1.patch.set_facecolor(plot_face_color)
         self.orbitVar_canvas.axes2.tick_params(colors='white')
@@ -583,30 +618,39 @@ class Ui_MainWindow(object):
 
 
 class planet(object):
+    ''' This class contains every function and parameter that defines
+        a planet and its movement around the sun.'''
+
     def __init__(self, name, m, a, i, e, Omega, omega, M0):
         self.name = name
-        self.m = m
-        self.a = a
-        self.i = np.radians(i)
-        self.e = e
-        self.Omega = np.radians(Omega)
-        self.omega = np.radians(omega)
-        self.M0 = np.radians(M0)
+        self.m = m  # mass
+        self.a = a  # semi major axis
+        self.i = np.radians(i)  # inclination
+        self.e = e  # eccentricity
+        self.Omega = np.radians(Omega)  # Longitude of Ascending node
+        self.omega = np.radians(omega)  # argument of periapsis
+        self.M0 = np.radians(M0)    # mean anomaly
+        # orbital period
         self.T = np.sqrt((4 * np.pi ** 2) /
                          (G * (m_sun + self.m)) * self.a ** 3)
-        self.w = 2 * np.pi / self.T
+        self.w = 2 * np.pi / self.T  # revolution speed
 
     def orbitalparam2vector(self, t):
+        ''' simplified model, assumes the planet is in a circular
+            orbit, parallel with the ecliptic plane. '''
         self.x = self.a * np.cos(self.w * t)
         self.y = self.a * np.sin(self.w * t)
         self.z = 0
         return [self.x, self.y, self.z]
 
     def orbitalparam2vectorList(self, timevector):
+        ''' Creates a list with the xyz position of the planet at each time '''
         self.posList = [self.completeOrbitalElem2Vector(t) for t in timevector]
         return np.array(self.posList)
 
     def completeOrbitalElem2Vector(self, t):
+        ''' Computes the position and velocity of the planet on the x,y,z axis
+            from the orbital parameters, at the time t.'''
         self.n = k / np.sqrt(self.a ** 3)
         self.M = self.M0 + self.n * (t)  # We start at t0 = 0 = J2000 so no correction
         self.E = self.newton(self.keplerEquation, self.M)
@@ -628,16 +672,19 @@ class planet(object):
                 self.velocity[0, 0], self.velocity[1, 0], self.velocity[2, 0]]
 
     def rotation1(self, theta):
+        ''' rotation matrix 1'''
         return np.array([[1, 0, 0],
                          [0, np.cos(theta), np.sin(theta)],
                          [0, -np.sin(theta), np.cos(theta)]])
 
     def rotation3(self, theta):
+        ''' rotation matrix 2'''
         return np.array([[np.cos(theta), np.sin(theta), 0],
                          [-np.sin(theta), np.cos(theta), 0],
                          [0, 0, 1]])
 
     def newton(self, f, E0, h=1e-4):
+        ''' Nexton's method to solve Kepler's equation M = E - e * sin(E)'''
         E = E0
         for _ in range(5):
             diff = (f(E + h) - f(E)) / h
@@ -645,36 +692,42 @@ class planet(object):
         return E
 
     def keplerEquation(self, E):
+        ''' Kepler's equation'''
         return E - self.e * np.sin(E) - self.M
 
 
 class Asteroid(planet):
+    ''' The class Asteroid that inherits from the class planet and all the orbital parameters'''
+
     def __init__(self, name, m=0, a=2, i=0, e=0, Omega=0, omega=0, M0=0, t0=0):
-        try:
-            self.name = name
-            self.m = float(ui.inputAsteroidMass.text())
-            self.a = a
-            self.i = i
-            self.e = e
-            self.Omega = Omega
-            self.omega = omega
-            self.M0 = M0
-            self.t0 = t0
-        except ValueError:
-            pass
+        self.name = name
+        self.m = float(ui.inputAsteroidMass.text())
+        self.a = a
+        self.i = i
+        self.e = e
+        self.Omega = Omega
+        self.omega = omega
+        self.M0 = M0
+        self.t0 = t0
 
     def get_init_state(self, t=0):
+        ''' In function of the type of input choosen by the user, returns a different
+            initial position and velocity vector. All the values are read from the inputs.'''
+
         if ui.circularCheckBox.checkState():  # Circular initial orbit
             self.a = float(ui.inputAsteroidSmAxis.text())
             self.init_state = np.array([self.a, 0, 0,
                                         0, k / np.sqrt(self.a), 0])
             return self.init_state
+
         else:  # User defined initial parameters
+
             if ui.tabWidget.currentIndex() == 1:  # Defined by position and velocity #FIXME
                 self.init_state = np.array(
                     [float(ui.inputPosX.text()), float(ui.inputPosY.text()), float(ui.inputPosZ.text()),
                      float(ui.inputVelX.text()), float(ui.inputVelY.text()), float(ui.inputVelZ.text())])
                 return self.init_state
+
             else:  # defined by orbital parameters
                 self.a = float(ui.inputAsteroidSmAxis.text())
                 self.i = np.radians(float(ui.inputInc.text()))
@@ -688,9 +741,16 @@ class Asteroid(planet):
 
 
 class MultiBody():
+    ''' This class groups together 3 functions :
+        - the Equation of Motion, which is the core of the program
+        - The Ruunge Kutta 4 integrator
+        - The Forward Backward method'''
 
     @classmethod
     def func(cls, t, y, planets):
+        ''' State space representation of the Equation of Perturbated Motion
+            Takes into account every selected planet.'''
+
         y0 = y[3]  # velocity on x
         y1 = y[4]  # velocity on y
         y2 = y[5]  # velocity on z
@@ -700,7 +760,7 @@ class MultiBody():
         y5 = -G * (m_sun + float(ui.inputAsteroidMass.text())) / (r ** 3) * y[2]
         for planet in planets:
             pos = planet.completeOrbitalElem2Vector(t)
-            # delta is the difference between r and position_Jupiter distance between asteroid & jup
+            # delta is the difference between 'r' and 'pos', it is the distance between asteroid & planet
             delta = np.sqrt((y[0] - pos[0]) ** 2 + (y[1] - pos[1])
                             ** 2 + (y[2] - pos[2]) ** 2)
             # equation of motion on x
@@ -713,7 +773,10 @@ class MultiBody():
 
     @classmethod
     def RK4(cls, time_vector, initial_conditions, h, planets):
-        # Definition of the Runge-Kutta method at the order 4
+        ''' Runge kutta 4 integrator :
+            takes a time vector, an initial conditions vector, a step and a list of planets
+            as an input, and outputs the list of positions and accelerations'''
+
         results = []
         yin = initial_conditions
         results.append(yin)  # set the first value to the initial conditions
@@ -731,10 +794,13 @@ class MultiBody():
 
     @classmethod
     def forward_backward(cls, time_vector, initial_conditions, h, planets):  # FIXME : progress bar going backwards
-        # allows for error computation. we just need to compute the difference at the starting point
-        # call RK4 in forward movement
+        ''' Calls the RK4 integrator a first time from the initial condition,
+            and a second time from the results, thus going back to the very
+            first starting point. By computing the difference between the results
+            and the initital conditions at the starting point, we obtain the
+            errors due to the integration'''
 
-        y_forward = cls.RK4(time_vector, initial_conditions, h, planets)
+        y_forward = cls.RK4(time_vector, initial_conditions, h, planets)  # call RK4 forwards
         ui.progressBar.setValue(50)
         new_y0 = y_forward[-1]  # new initial conditions
         y_backward = cls.RK4(np.flip(time_vector), new_y0, - h, planets)  # call RK4 backwards
@@ -743,37 +809,28 @@ class MultiBody():
 
 
 def extract_vectors(results):
-    # takes the list of outputs from RK4 and extracts a list of position and velocity vectors
+    '''takes the list of outputs from RK4 and extracts a list of position and velocity vectors'''
+
     r_list = [[results[i][j] for j in range(0, 3)] for i in range(len(results))]
     r_dot_list = [[results[i][j + 3] for j in range(0, 3)] for i in range(len(results))]
-    for i in range(len(results)):
-        r = []
-        r_dot = []
-        for j in range(0, 3):
-            r.append(results[i][j])
-            r_dot.append(results[i][j + 3])
-        r_list.append(r)
-        r_dot_list.append(r_dot)
     return r_list, r_dot_list
 
 
 def vector2orbitalparam(r, rdot):
-    # takes two vectors : pos(x,y,z) and v(x,y,z) and computes the orbital parameters at this point
+    '''takes two vectors : pos(x,y,z) and v(x,y,z) and computes the orbital parameters at this point'''
+
     semi_major_axis = (2 / np.linalg.norm(r) - np.linalg.norm(rdot) ** 2 / mu) ** (-1)
-
     eccentricity = np.linalg.norm(np.cross(rdot, np.cross(r, rdot)) / mu - r / np.linalg.norm(r))
-
     k_vector = np.cross(r, rdot) / (np.linalg.norm(r) * np.linalg.norm(rdot))
-
-    # np.around rounds the value of k_vectors so it stays in [-1,1]
+    # np.around rounds the value of k_vectors so it stays in [-1,1] for the arccos
     inclination = np.degrees(np.arccos(np.around(k_vector[2], 4)))
 
     return semi_major_axis, eccentricity, inclination
 
 
 def orbital_parameters_list(r, rdot):
-    # takes the list of position vectors and velocity vectors and computes the corresponding
-    # orbital parameters at each point. Returns individual lists of those parameters
+    ''' takes the list of position vectors and velocity vectors and computes the corresponding
+        orbital parameters at each point. Returns individual lists of those parameters '''
     a_list = []
     e_list = []
     i_list = []
@@ -817,8 +874,9 @@ def set_axes_equal(ax):
 if __name__ == "__main__":
     import sys
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)  # create the app
 
+    # Set the style and colors of the app
     app.setStyle("Fusion")
     dark_palette = QPalette()
     dark_palette.setColor(QPalette.Window, QtGui.QColor(51, 54, 63))
@@ -839,15 +897,19 @@ if __name__ == "__main__":
     plot_background_color = (51/255, 54/255, 63/255)
     plot_face_color = (39/255, 42/255, 49/255)
 
+    # Creates the main window and places all widgets on it
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
 
+    # General parameters and constants
     m_sun = 1  # mass of the Sun
     G = 0.000295824  # gravitation constant expressed in our own system of units
     k = np.sqrt(G)
     mu = G * m_sun
+
+    # Creation of the each planet from their orbital parameters at J2000
     mercury = planet('mercury', m_sun / 6023622.047, 0.38709893, 7.00487, 0.20563069, 48.33167, 77.45645, 126.464)
     venus = planet('venus', m_sun / 408544.7263,  0.72333199, 3.39471, 0.00677323, 76.68069, 131.53298, -26.23394)
     earth = planet('earth', m_sun / 332965.0462, 1, 0.00005, 0.01671022, 348.73936, 102.94719, -351.2222)
@@ -857,4 +919,5 @@ if __name__ == "__main__":
     uranus = planet('uranus', m_sun / 22906.30182, 19.19126393, 0.76986, 0.04716771, 74.22988, 170.96424, 68.0392)
     neptune = planet('neptune', m_sun / 19418.13922, 30.06896348, 1.76917, 0.00858587,  131.72169, 44.97135, 128.19)
 
+    # Close the app
     sys.exit(app.exec_())
