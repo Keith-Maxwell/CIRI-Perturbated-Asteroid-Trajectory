@@ -18,6 +18,8 @@ Simply double click on the file `.exe` file.
 
 Run the file `main_GUI.py`. This requires PyQt5, Numpy and Matplotlib, so make sure those modules are installed. If not, you can do so by using the command `pip install[module_name]` in your terminal.
 
+If you do not want to use the interface, the file `asteroid_trajectory.py` works as well, but is less practical.
+
 ### Interface
 
 <img src="screen.png" style="zoom:75%;" />
