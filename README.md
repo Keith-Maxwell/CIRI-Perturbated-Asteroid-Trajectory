@@ -6,7 +6,7 @@ This project is part of my CIRI (Cours d’Initiation à la Recherche et à l’
 
 The objective is to model the trajectory of an asteroid in the solar system subject to perturbations from Jupiter. We then study the variations of the orbital parameters such as the semi-major axis, the eccentricity and the inclination after a few centuries. This allows us to visualize the resonances.
 
-We went further by adding all the other planets  in the solar system, which we can choose from using a Graphical User Interface. The orbital parameters of the asteroid are user-defined, as well as the integration parameters.
+We went further by adding all the other planets  in the solar system, which we can choose using a Graphical User Interface. The orbital parameters of the asteroid are user-defined, as well as the integration parameters.
 
 ## How to use
 
@@ -17,6 +17,8 @@ Simply double click on the file `.exe` file.
 ### Running the python file
 
 Run the file `main_GUI.py`. This requires PyQt5, Numpy and Matplotlib, so make sure those modules are installed. If not, you can do so by using the command `pip install[module_name]` in your terminal.
+
+If you do not want to use the interface, the file `asteroid_trajectory.py` works as well, but is less practical.
 
 ### Interface
 
@@ -47,7 +49,7 @@ If you want to re-run the simulation with other parameters, simply change the de
 - Asteroid parameters :
   - Circular orbit
   - User defined orbit with parameters
-  - User defined orbit with position and velocity
+  - User defined orbit with position and velocity (bugs)
 - Plot of the trajectory of every selected body in 3d
 - Plot of the orbital parameters changes due to perturbation (only if a planet has been selected)
 
@@ -58,7 +60,8 @@ If you want to re-run the simulation with other parameters, simply change the de
 - Option to choose from simplified or accurate planet trajectory model
 - more integrators
 - input proofing and displaying errors instead of crashing the program
-- Logging
 - Saving the results to a file for use in Excel for example
 - Improve Performance
 - re-write some functions in C++ to improve performance 
+
+### Contributions are welcome !

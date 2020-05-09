@@ -509,9 +509,9 @@ class Ui_MainWindow(object):
             self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
             self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
             self.err_z = 150e6 * abs(self.forward[0][2] - self.backward[-1][2]) / 2
-            self.fwbwOutputLabel.setText(f"Error on x: \n{str(round(self.err_x, 2))} km\n\n \
-                                            Error on y: \n{str(round(self.err_y, 2))} km\n\n \
-                                            Error on z: \n{str(round(self.err_z, 2))} km")
+            self.fwbwOutputLabel.setText("Error on x: \n" + str(round(self.err_x, 2)) +
+                                         " km\n\nError on y: \n" + str(round(self.err_y, 2)) +
+                                         "km\n\nError on z: \n" + str(round(self.err_z, 2)) + "km")
             self.results = self.forward  # Store the results from the forward integration in a dedicated list
 
         else:  # if the user did not ask for a fw-bw integration, then only compute the results.
@@ -715,7 +715,7 @@ class Asteroid(planet):
             initial position and velocity vector. All the values are read from the inputs.'''
 
         if ui.circularCheckBox.checkState():  # Circular initial orbit
-            self.a = float(ui.inputAsteroidSmAxis.text())
+            self.a = float(ui.inputAsteroidSMaxis.text())
             self.init_state = np.array([self.a, 0, 0,
                                         0, k / np.sqrt(self.a), 0])
             return self.init_state
@@ -729,7 +729,7 @@ class Asteroid(planet):
                 return self.init_state
 
             else:  # defined by orbital parameters
-                self.a = float(ui.inputAsteroidSmAxis.text())
+                self.a = float(ui.inputAsteroidSMaxis.text())
                 self.i = np.radians(float(ui.inputInc.text()))
                 self.e = float(ui.inputEcc.text())
                 self.Omega = np.radians(float(ui.inputLan.text()))
