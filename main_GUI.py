@@ -5,11 +5,10 @@
 
 # Created with: PyQt5 UI code generator 5.13.0
 
-# TODO: comment the whole code
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPalette
 import numpy as np
+from scipy.integrate import odeint
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -102,6 +101,8 @@ class Ui_MainWindow(object):
         self.methodBox.setGeometry(QtCore.QRect(20, 140, 211, 22))
         self.methodBox.setObjectName("methodBox")
         self.methodBox.addItem("")
+        self.methodBox.currentIndexChanged.connect(self.hide_show_step)
+
         self.forwBackCheckBox = QtWidgets.QCheckBox(self.groupIntegrationParam)
         self.forwBackCheckBox.setGeometry(QtCore.QRect(20, 180, 211, 20))
         self.forwBackCheckBox.setObjectName("forwBackCheckBox")
@@ -418,6 +419,8 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Number of days :"))
         self.label_4.setText(_translate("MainWindow", "Step :"))
         self.methodBox.setItemText(0, _translate("MainWindow", "RungeKutta4"))
+        self.methodBox.addItem("")
+        self.methodBox.setItemText(1, _translate("MainWindow", "Scipy Solver"))
         self.forwBackCheckBox.setText(_translate("MainWindow", "Forward-Backward integration"))
         self.groupPlots.setTitle(_translate("MainWindow", ""))
         self.label_3.setText(_translate("MainWindow", "Trajectory of the asteroid"))
@@ -501,21 +504,24 @@ class Ui_MainWindow(object):
 
         self.progressBar.setValue(10)
 
-        if self.forwBackCheckBox.isChecked():  # If the user asked for Forward-Backward integration then :
-            # call forward-backward function and store results in two lists
-            self.forward, self.backward = MultiBody.forward_backward(self.time, init,
-                                                                     float(self.inputStep.text()), planets)
-            # Compute the error between the starting point and the result of the backward integration
-            self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
-            self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
-            self.err_z = 150e6 * abs(self.forward[0][2] - self.backward[-1][2]) / 2
-            self.fwbwOutputLabel.setText("Error on x: \n" + str(round(self.err_x, 2)) +
-                                         " km\n\nError on y: \n" + str(round(self.err_y, 2)) +
-                                         "km\n\nError on z: \n" + str(round(self.err_z, 2)) + "km")
-            self.results = self.forward  # Store the results from the forward integration in a dedicated list
+        if self.methodBox.currentIndex() == 0:
+            if self.forwBackCheckBox.isChecked():  # If the user asked for Forward-Backward integration then :
+                # call forward-backward function and store results in two lists
+                self.forward, self.backward = MultiBody.forward_backward(self.time, init,
+                                                                         float(self.inputStep.text()), planets)
+                # Compute the error between the starting point and the result of the backward integration
+                self.err_x = 150e6 * abs(self.forward[0][0] - self.backward[-1][0]) / 2
+                self.err_y = 150e6 * abs(self.forward[0][1] - self.backward[-1][1]) / 2
+                self.err_z = 150e6 * abs(self.forward[0][2] - self.backward[-1][2]) / 2
+                self.fwbwOutputLabel.setText("Error on x: \n" + str(round(self.err_x, 2)) +
+                                             " km\n\nError on y: \n" + str(round(self.err_y, 2)) +
+                                             "km\n\nError on z: \n" + str(round(self.err_z, 2)) + "km")
+                self.results = self.forward  # Store the results from the forward integration in a dedicated list
 
-        else:  # if the user did not ask for a fw-bw integration, then only compute the results.
-            self.results = MultiBody.RK4(self.time, init, float(self.inputStep.text()), planets)
+            else:  # if the user did not ask for a fw-bw integration, then only compute the results.
+                self.results = MultiBody.RK4(self.time, init, float(self.inputStep.text()), planets)
+        else:
+            self.results, odeLog = MultiBody.odeSolve(self.time, init, planets)
 
         self.PlotTrajectory(planets)  # plot of the results + planets
 
@@ -537,6 +543,20 @@ class Ui_MainWindow(object):
             self.tabWidget.hide()
         else:
             self.tabWidget.show()
+
+    def hide_show_step(self):
+        ''' Hides the inputs of the step and the fwd_bwd checkbox
+            if the scipy integrator  is selected'''
+        if self.methodBox.currentIndex() == 1:
+            self.forwBackCheckBox.hide()
+            self.inputStep.hide()
+            self.label_4.setText("Automatic variable step")
+            self.label_4.adjustSize()
+        else:
+            self.forwBackCheckBox.show()
+            self.inputStep.show()
+            self.label_4.setText("Step :")
+            self.label_4.adjustSize()
 
     def shrink(self, list_):
         ''' reducing the number of elements in the list, to have a quicker
@@ -806,6 +826,11 @@ class MultiBody():
         y_backward = cls.RK4(np.flip(time_vector), new_y0, - h, planets)  # call RK4 backwards
 
         return y_forward, y_backward
+
+    @classmethod
+    def odeSolve(cls, time_vector, initial_conditions, planets):
+        results, log = odeint(cls.func, initial_conditions, time_vector, args=(planets,), tfirst=True, full_output=True)
+        return results, log
 
 
 def extract_vectors(results):
