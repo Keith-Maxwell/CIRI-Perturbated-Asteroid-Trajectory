@@ -357,7 +357,7 @@ class Ui_MainWindow(object):
         # ------------------------------------------------------------------------
         # ------------Progress Bar------------
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(WIDTH/2 + 80, 280, 460, 16))
+        self.progressBar.setGeometry(QtCore.QRect(int(WIDTH/2) + 80, 280, 460, 16))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar.setTextVisible(False)
@@ -367,7 +367,7 @@ class Ui_MainWindow(object):
         # ------------------------------------------------------------------------
         # ------------Start Button------------
         self.StartButton = QtWidgets.QPushButton(self.centralwidget)
-        self.StartButton.setGeometry(QtCore.QRect(WIDTH/2 - 121/2, 260, 121, 51))
+        self.StartButton.setGeometry(QtCore.QRect(int(WIDTH/2) - 120/2, 260, 121, 51))
         self.StartButton.setObjectName("StartButton")
 
         self.warningLabel = QtWidgets.QLabel(self.centralwidget)
@@ -455,6 +455,7 @@ class Ui_MainWindow(object):
         self.warningLabel.setText(_translate("MainWindow", " "))  # TODO : connect to error output
         self.fwbwOutputLabel.setText(_translate("MainWindow", " "))
         self.inputInitTime.setText(_translate("MainWindow", "0"))
+        self.inputStep.setText(_translate("MainWindow", "1"))
         self.label_start_time.setText(_translate("MainWindow", "Start : J2000 + "))
         self.days_label.setText(_translate("MainWindow", "days"))
         self.inputAsteroidMass.setText(_translate("MainWindow", "0"))
@@ -596,7 +597,7 @@ class Ui_MainWindow(object):
         self.trajectory_canvas.axes.tick_params(colors='white')
         self.trajectory_canvas.axes.patch.set_facecolor(plot_face_color)
         self.trajectory_canvas.axes.legend()
-        self.trajectory_canvas.axes.set_aspect('equal')
+        # self.trajectory_canvas.axes.set_aspect('equal')
         set_axes_equal(self.trajectory_canvas.axes)
         self.trajectory_canvas.axes.mouse_init(rotate_btn=1, zoom_btn=3)
 
